@@ -10,13 +10,15 @@ O produto compara três recortes temporais:
 
 ## Arquivos Principais
 
-- `index.html`: página inicial do produto, com links para o dashboard completo e para o webmap independente.
+- `index.html`: página inicial do produto, com links para os dashboards e para o webmap independente.
 - `dashboard/dashboard_urbanizacao_webmap.html`: dashboard principal com cartões, abas, webmap e gráficos Plotly.
 - `dashboard/dashboard_comparativo_socio_urbano.html`: dashboard complementar que cruza crescimento urbano por bairro com população, densidade e domicílios.
+- `dashboard/dashboard_pressao_saneamento.html`: dashboard complementar sobre pressão urbana nos distritos de saneamento.
 - `dashboard/webmap_manchas_urbanas.html`: webmap isolado para abrir em outra aba ou usar em apresentação.
 - `dashboard/urbanizacao_webmap_data.js`: dados GeoJSON e estatísticas usados pelos HTMLs.
 - `scripts/gerar_dashboard_urbanizacao_webmap.py`: script que gera os CSVs, o arquivo JS e os HTMLs.
 - `scripts/gerar_dashboard_comparativo_socio_urbano.py`: script que gera o dashboard socio-urbano e a tabela comparativa por bairro.
+- `scripts/gerar_dashboard_pressao_saneamento.py`: script que cruza manchas urbanas, bairros e distritos de saneamento.
 - `PUBLICACAO_GITHUB_PAGES.md`: roteiro para criar o repositório, enviar ao GitHub e ativar o GitHub Pages.
 - `.nojekyll`: arquivo usado para publicar o site estático no GitHub Pages sem processamento Jekyll.
 
@@ -35,17 +37,20 @@ urbanizacao_florianopolis/
   dashboard/
     dashboard_urbanizacao_webmap.html
     dashboard_comparativo_socio_urbano.html
+    dashboard_pressao_saneamento.html
     webmap_manchas_urbanas.html
     urbanizacao_webmap_data.js
   resultados/
     areas_urbanizadas_totais_1977_2002_2024.csv
     comparativo_socio_urbano_bairros.csv
+    pressao_urbana_distritos_saneamento.csv
     classes_uso_2024.csv
     taxas_urbanizacao_1977_2002_2024.csv
     urbanizacao_por_bairro_1977_2002_2024.csv
     urbanizacao_por_regiao_1977_2002_2024.csv
   scripts/
     gerar_dashboard_comparativo_socio_urbano.py
+    gerar_dashboard_pressao_saneamento.py
     gerar_dashboard_urbanizacao_webmap.py
   .gitignore
   .nojekyll
@@ -66,7 +71,7 @@ As camadas usadas no processamento principal são:
 
 Todas as camadas principais estão em `SIRGAS 2000 / UTM zone 22S`, EPSG:31982. Como é um sistema projetado em metros, ele permite calcular áreas diretamente em m² e converter para km².
 
-## Uso Potencial Da Camada De Saneamento
+## Dashboard De Pressão Urbana Em Saneamento
 
 O arquivo `dados_brutos/sau_dist_san.zip` contém cinco distritos de saneamento:
 
@@ -76,7 +81,7 @@ O arquivo `dados_brutos/sau_dist_san.zip` contém cinco distritos de saneamento:
 - Distrito Continente;
 - Distrito Norte.
 
-Essa camada permite contar uma segunda história territorial: a expansão urbana vista pela ótica da infraestrutura urbana e do saneamento. Em vez de observar apenas bairros e regiões administrativas, é possível perguntar quais distritos de saneamento receberam maior crescimento da mancha urbana e quais já estavam próximos da saturação urbana.
+Essa camada permite contar uma terceira história territorial: a expansão urbana vista pela ótica da infraestrutura urbana e do saneamento. Em vez de observar apenas bairros e regiões administrativas, o dashboard pergunta quais distritos de saneamento receberam maior crescimento da mancha urbana e quais já estavam próximos da saturação urbana.
 
 Prévia estatística por distrito:
 
@@ -93,7 +98,27 @@ Leitura inicial:
 - Norte e Sul concentram a maior expansão absoluta entre 1977 e 2024.
 - Centro e Continente aparecem como áreas historicamente consolidadas, com percentual urbanizado muito alto em 2024.
 - Leste possui crescimento intermediário e pode ser analisado junto com bairros como Rio Vermelho e áreas de expansão mais recente.
-- Essa camada pode alimentar uma futura aba ou dashboard de infraestrutura urbana, cruzando crescimento, população e distritos de saneamento.
+- O dashboard `dashboard/dashboard_pressao_saneamento.html` transforma essa leitura em gráficos Plotly, metodologia, glossário e tabela síntese.
+
+### Índice Exploratório De Pressão Urbana
+
+O índice combina três variáveis normalizadas entre 0 e 100:
+
+```text
+N(x) = ((x - xmin) / (xmax - xmin)) × 100
+```
+
+```text
+IPUS = 0,45 × N(ΔA_1977_2024)
+     + 0,35 × N(%urb_2024)
+     + 0,20 × N(ΔA_1977_2024 por 1.000 habitantes)
+```
+
+Onde:
+
+- `ΔA_1977_2024` representa o crescimento absoluto da mancha urbana no distrito;
+- `%urb_2024` representa o percentual do distrito ocupado por área urbanizada em 2024;
+- `ΔA_1977_2024 por 1.000 habitantes` aproxima a pressão territorial relativa à população estimada.
 
 ## Observação Sobre 2002/2003
 
@@ -313,6 +338,20 @@ O script complementar `scripts/gerar_dashboard_comparativo_socio_urbano.py` exec
 11. Exporta `resultados/comparativo_socio_urbano_bairros.csv`.
 12. Gera `dashboard/dashboard_comparativo_socio_urbano.html`.
 
+O script complementar `scripts/gerar_dashboard_pressao_saneamento.py` executa estas etapas:
+
+1. Lê a camada `sau_dist_san.zip`.
+2. Lê as manchas urbanas de 1977, 2002/2003 e 2024.
+3. Filtra 2024 para manter apenas `tipo = Urbanizado`.
+4. Intersecta cada mancha urbana com os distritos de saneamento.
+5. Calcula área urbanizada e percentual urbanizado por distrito.
+6. Intersecta bairros e distritos para aproximar população, domicílios e densidade por proporção de área.
+7. Calcula crescimento absoluto por distrito.
+8. Calcula crescimento urbano por 1.000 habitantes.
+9. Normaliza os indicadores e calcula o índice exploratório de pressão urbana em saneamento.
+10. Exporta `resultados/pressao_urbana_distritos_saneamento.csv`.
+11. Gera `dashboard/dashboard_pressao_saneamento.html`.
+
 ## Como Regenerar O Dashboard
 
 Instale as dependências:
@@ -333,6 +372,12 @@ Para regenerar o dashboard comparativo socio-urbano, execute:
 python scripts/gerar_dashboard_comparativo_socio_urbano.py
 ```
 
+Para regenerar o dashboard de pressão urbana em saneamento, execute:
+
+```bash
+python scripts/gerar_dashboard_pressao_saneamento.py
+```
+
 O script atualiza:
 
 - `dashboard/dashboard_urbanizacao_webmap.html`
@@ -344,6 +389,11 @@ O script comparativo atualiza:
 
 - `dashboard/dashboard_comparativo_socio_urbano.html`
 - `resultados/comparativo_socio_urbano_bairros.csv`
+
+O script de saneamento atualiza:
+
+- `dashboard/dashboard_pressao_saneamento.html`
+- `resultados/pressao_urbana_distritos_saneamento.csv`
 
 ## Visualização
 
@@ -363,6 +413,12 @@ Abra o dashboard comparativo socio-urbano:
 
 ```text
 dashboard/dashboard_comparativo_socio_urbano.html
+```
+
+Abra o dashboard de pressão urbana em saneamento:
+
+```text
+dashboard/dashboard_pressao_saneamento.html
 ```
 
 Os gráficos são feitos com Plotly e permitem exportação em PNG pelo botão de câmera da barra de ferramentas.

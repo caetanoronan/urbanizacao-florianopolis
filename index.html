@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Urbanizacao de Florianopolis</title>
+  <title>Urbanização de Florianópolis</title>
   <style>
     :root {
       --bg: #f6f2ec;
@@ -218,7 +218,7 @@
       gap: 16px;
     }
 
-    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
     .info-grid { grid-template-columns: repeat(5, 1fr); }
     .steps { grid-template-columns: repeat(3, 1fr); }
     .locations-grid { grid-template-columns: repeat(4, 1fr); }
@@ -326,81 +326,93 @@
     <header class="hero">
       <div class="hero-top">
         <div>
-          <div class="badge">UFSC | Urbanizacao de Florianopolis</div>
-          <h1>Expansao Urbana de Florianopolis</h1>
-          <p class="lead">Produto interativo para consulta, apresentacao e documentacao da evolucao da mancha urbana entre 1977, 2002/2003 e 2024.</p>
+          <div class="badge">UFSC | Urbanização de Florianópolis</div>
+          <h1>Expansão Urbana de Florianópolis</h1>
+          <p class="lead">Produto interativo para consulta, apresentação e documentação da evolução da mancha urbana entre 1977, 2002/2003 e 2024.</p>
           <div class="hero-actions">
             <a class="button primary" href="dashboard/dashboard_urbanizacao_webmap.html">Abrir dashboard completo</a>
             <a class="button" href="dashboard/dashboard_comparativo_socio_urbano.html">Abrir comparativo</a>
+            <a class="button" href="dashboard/dashboard_pressao_saneamento.html">Abrir saneamento</a>
             <a class="button" href="dashboard/webmap_manchas_urbanas.html">Abrir webmap</a>
           </div>
         </div>
         <button class="theme-toggle" id="theme-toggle" type="button">Modo escuro</button>
       </div>
-      <p class="hero-note">O material organiza camadas vetoriais do Geoportal de Florianopolis, calcula areas urbanizadas, crescimento por bairro, crescimento por regiao administrativa e taxas medias por periodo.</p>
+      <p class="hero-note">O material organiza camadas vetoriais do Geoportal de Florianópolis, calcula áreas urbanizadas, crescimento por bairro, crescimento por região administrativa, taxas médias por período e pressão urbana nos distritos de saneamento.</p>
     </header>
 
     <section>
-      <h2>Três produtos para usos diferentes</h2>
-      <p class="section-lead">A pagina reune o painel analitico principal, um dashboard socio-urbano e um webmap independente. Assim, a historia da expansao urbana fica separada da comparacao estatistica com populacao, densidade e domicilios.</p>
+      <h2>Quatro produtos para usos diferentes</h2>
+      <p class="section-lead">A página reúne o painel analítico principal, um dashboard socio-urbano, um dashboard de pressão urbana em saneamento e um webmap independente. Assim, a história da expansão urbana fica organizada em leituras complementares, sem poluir uma única tela.</p>
       <div class="product-grid">
         <article class="card">
           <h3>Dashboard completo</h3>
-          <p>Reune introducao, metodologia, webmap, evolucao da area urbanizada, bairros com maior crescimento, regioes administrativas, taxas medias e percentual urbanizado.</p>
+          <p>Reúne introdução, metodologia, webmap, evolução da área urbanizada, bairros com maior crescimento, regiões administrativas, taxas médias e percentual urbanizado.</p>
           <ul>
-            <li>Indicado para apresentacao e analise guiada.</li>
-            <li>Possui graficos interativos em Plotly.</li>
+            <li>Indicado para apresentação e análise guiada.</li>
+            <li>Possui gráficos interativos em Plotly.</li>
             <li>Permite baixar figuras em PNG.</li>
           </ul>
           <a class="button primary" href="dashboard/dashboard_urbanizacao_webmap.html">Entrar no dashboard</a>
         </article>
         <article class="card">
           <h3>Webmap</h3>
-          <p>Mostra o crescimento por bairro em uma pagina separada, com camadas historicas opcionais, modo escuro, escala, rosa dos ventos e base satelite.</p>
+          <p>Mostra o crescimento por bairro em uma página separada, com camadas históricas opcionais, modo escuro, escala, rosa dos ventos e base satélite.</p>
           <ul>
-            <li>Indicado para consulta espacial rapida.</li>
-            <li>Foca na distribuicao territorial do crescimento urbano.</li>
-            <li>Possui limite de zoom e extensao da area de estudo.</li>
+            <li>Indicado para consulta espacial rápida.</li>
+            <li>Foca na distribuição territorial do crescimento urbano.</li>
+            <li>Possui limite de zoom e extensão da área de estudo.</li>
           </ul>
           <a class="button" href="dashboard/webmap_manchas_urbanas.html">Abrir webmap</a>
         </article>
         <article class="card">
           <h3>Comparativo socio-urbano</h3>
-          <p>Cruza crescimento urbano por bairro com populacao estimada, densidade populacional, domicilios e perfis socio-urbanos.</p>
+          <p>Cruza crescimento urbano por bairro com população estimada, densidade populacional, domicílios e perfis socio-urbanos.</p>
           <ul>
-            <li>Indicado para analise estatistica exploratoria.</li>
+            <li>Indicado para análise estatística exploratória.</li>
             <li>Inclui barras comparativas, perfis socio-urbanos e rankings.</li>
-            <li>Ajuda a diferenciar expansao territorial e adensamento.</li>
+            <li>Ajuda a diferenciar expansão territorial e adensamento.</li>
           </ul>
           <a class="button" href="dashboard/dashboard_comparativo_socio_urbano.html">Abrir comparativo</a>
+        </article>
+        <article class="card">
+          <h3>Pressão urbana e saneamento</h3>
+          <p>Analisa a expansão urbana dentro dos distritos de saneamento para indicar onde o crescimento territorial pode pressionar a infraestrutura urbana.</p>
+          <ul>
+            <li>Indicado para leitura territorial de planejamento.</li>
+            <li>Inclui índice exploratório de pressão urbana.</li>
+            <li>Compara área urbanizada, população aproximada e percentual urbanizado.</li>
+          </ul>
+          <a class="button" href="dashboard/dashboard_pressao_saneamento.html">Abrir saneamento</a>
         </article>
       </div>
     </section>
 
     <section>
       <h2>Base de dados</h2>
-      <p class="section-lead">As camadas foram processadas em sistema metrico para permitir comparacao direta de areas em km2 e leitura por bairro e regiao administrativa.</p>
+      <p class="section-lead">As camadas foram processadas em sistema métrico para permitir comparação direta de áreas em km² e leitura por bairro, região administrativa e distrito de saneamento.</p>
       <div class="info-grid">
-        <div class="stat"><span>Area urbanizada 1977</span><strong>49,42 km2</strong></div>
-        <div class="stat"><span>Area urbanizada 2002/2003</span><strong>83,8 km2</strong></div>
-        <div class="stat"><span>Area urbanizada 2024</span><strong>116,29 km2</strong></div>
-        <div class="stat"><span>Crescimento total</span><strong>+66,86 km2</strong></div>
-        <div class="stat"><span>Media anual</span><strong>+1,42 km2/ano</strong></div>
+        <div class="stat"><span>Área urbanizada 1977</span><strong>49,42 km²</strong></div>
+        <div class="stat"><span>Área urbanizada 2002/2003</span><strong>83,8 km²</strong></div>
+        <div class="stat"><span>Área urbanizada 2024</span><strong>116,29 km²</strong></div>
+        <div class="stat"><span>Crescimento total</span><strong>+66,86 km²</strong></div>
+        <div class="stat"><span>Média anual</span><strong>+1,42 km²/ano</strong></div>
       </div>
     </section>
 
     <section>
       <h2>Recortes analisados</h2>
-      <p class="section-lead">O produto combina recortes temporais e territoriais para transformar as manchas urbanas em indicadores comparaveis.</p>
+      <p class="section-lead">O produto combina recortes temporais e territoriais para transformar as manchas urbanas em indicadores comparáveis.</p>
       <div class="locations-grid">
-        <div class="location-card"><strong>1977</strong><span>Mancha urbana historica inicial.</span></div>
-        <div class="location-card"><strong>2002/2003</strong><span>Mancha urbana intermediaria do Geoportal.</span></div>
-        <div class="location-card"><strong>2024</strong><span>Apenas feicoes classificadas como Urbanizado.</span></div>
-        <div class="location-card"><strong>Bairros</strong><span>Intersecao entre limites de bairros e manchas urbanas.</span></div>
-        <div class="location-card"><strong>Regioes administrativas</strong><span>Agregacao territorial dos bairros.</span></div>
-        <div class="location-card"><strong>Taxas medias</strong><span>Crescimento anual linear e taxa composta.</span></div>
-        <div class="location-card"><strong>Percentual urbanizado</strong><span>Area urbanizada em relacao a area total da unidade.</span></div>
-        <div class="location-card"><strong>Webmap</strong><span>Camadas interativas com base OSM e Google Satelite.</span></div>
+        <div class="location-card"><strong>1977</strong><span>Mancha urbana histórica inicial.</span></div>
+        <div class="location-card"><strong>2002/2003</strong><span>Mancha urbana intermediária do Geoportal.</span></div>
+        <div class="location-card"><strong>2024</strong><span>Apenas feições classificadas como Urbanizado.</span></div>
+        <div class="location-card"><strong>Bairros</strong><span>Interseção entre limites de bairros e manchas urbanas.</span></div>
+        <div class="location-card"><strong>Regiões administrativas</strong><span>Agregação territorial dos bairros.</span></div>
+        <div class="location-card"><strong>Distritos de saneamento</strong><span>Leitura da pressão urbana sobre infraestrutura.</span></div>
+        <div class="location-card"><strong>Taxas médias</strong><span>Crescimento anual linear e taxa composta.</span></div>
+        <div class="location-card"><strong>Percentual urbanizado</strong><span>Área urbanizada em relação à área total da unidade.</span></div>
+        <div class="location-card"><strong>Webmap</strong><span>Camadas interativas com base OSM e Google Satélite.</span></div>
       </div>
     </section>
 
@@ -409,40 +421,44 @@
       <div class="steps">
         <article class="card">
           <h3>1. Coleta</h3>
-          <p>Foram reunidas camadas vetoriais do Geoportal de Florianopolis: mancha urbana de 1977, mancha urbana de 2002/2003, areas urbanizadas de 2024 e limites de bairros.</p>
+          <p>Foram reunidas camadas vetoriais do Geoportal de Florianópolis: mancha urbana de 1977, mancha urbana de 2002/2003, áreas urbanizadas de 2024, limites de bairros e distritos de saneamento.</p>
         </article>
         <article class="card">
           <h3>2. Tratamento</h3>
           <p>As geometrias foram validadas, dissolvidas por ano e cruzadas com os limites territoriais. Para 2024, foi usado somente o atributo tipo = Urbanizado.</p>
         </article>
         <article class="card">
-          <h3>3. Visualizacao</h3>
-          <p>Os resultados foram transformados em CSVs, arquivo GeoJSON para webmap, graficos Plotly, dashboard completo, dashboard socio-urbano, mapa independente e README metodologico.</p>
+          <h3>3. Visualização</h3>
+          <p>Os resultados foram transformados em CSVs, arquivo GeoJSON para webmap, gráficos Plotly, dashboard completo, dashboard socio-urbano, dashboard de saneamento, mapa independente e README metodológico.</p>
         </article>
       </div>
     </section>
 
     <section>
       <h2>Leitura dos resultados</h2>
-      <p class="section-lead">O painel prioriza interpretacao exploratoria da expansao urbana. Valores em km2 indicam crescimento absoluto; valores em percentual indicam quanto da unidade territorial ja estava ocupada pela mancha urbana.</p>
+      <p class="section-lead">O painel prioriza interpretação exploratória da expansão urbana. Valores em km² indicam crescimento absoluto; valores em percentual indicam quanto da unidade territorial já estava ocupada pela mancha urbana.</p>
       <div class="product-grid">
         <article class="card">
-          <h3>Para analise temporal</h3>
-          <p>Use a evolucao da area urbanizada e a taxa media por periodo para observar a intensidade do crescimento entre os recortes historicos.</p>
+          <h3>Para análise temporal</h3>
+          <p>Use a evolução da área urbanizada e a taxa média por período para observar a intensidade do crescimento entre os recortes históricos.</p>
         </article>
         <article class="card">
-          <h3>Para comparacao espacial</h3>
-          <p>Use o webmap, o ranking de bairros, a agregacao por regiao administrativa e o comparativo socio-urbano para identificar os setores com maior crescimento e maior adensamento.</p>
+          <h3>Para comparação espacial</h3>
+          <p>Use o webmap, o ranking de bairros, a agregação por região administrativa e o comparativo socio-urbano para identificar os setores com maior crescimento e maior adensamento.</p>
+        </article>
+        <article class="card">
+          <h3>Para saneamento</h3>
+          <p>Use o dashboard de pressão urbana para comparar os distritos de saneamento e observar onde a expansão territorial recente pode exigir maior atenção de infraestrutura.</p>
         </article>
       </div>
     </section>
 
     <footer class="footer">
       <p><strong>Autoria:</strong> Caetano Ronan - UFSC.</p>
-      <p><strong>Produto:</strong> painel interativo e webmap para analise da urbanizacao de Florianopolis entre 1977, 2002/2003 e 2024.</p>
-      <p><strong>Dados e ferramentas:</strong> Geoportal de Florianopolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024` e `gvw_bairros`; Python, GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas, OpenStreetMap e Google Satelite.</p>
-      <p><strong>Processamento:</strong> SIRGAS 2000 / UTM zona 22S, EPSG:31982; validacao geometrica, dissolucao das manchas urbanas, intersecao com bairros, agregacao por regiao administrativa e conversao de m2 para km2.</p>
-      <p><strong>Arquivos principais:</strong> <a href="dashboard/dashboard_urbanizacao_webmap.html">dashboard completo</a>; <a href="dashboard/dashboard_comparativo_socio_urbano.html">comparativo socio-urbano</a>; <a href="dashboard/webmap_manchas_urbanas.html">webmap independente</a>; <a href="README.md">README metodologico</a>.</p>
+      <p><strong>Produto:</strong> painel interativo e webmap para análise da urbanização de Florianópolis entre 1977, 2002/2003 e 2024.</p>
+      <p><strong>Dados e ferramentas:</strong> Geoportal de Florianópolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024`, `gvw_bairros` e `sau_dist_san.zip`; Python, GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas, OpenStreetMap e Google Satélite.</p>
+      <p><strong>Processamento:</strong> SIRGAS 2000 / UTM zona 22S, EPSG:31982; validação geométrica, dissolução das manchas urbanas, interseção com bairros e distritos de saneamento, agregação territorial e conversão de m² para km².</p>
+      <p><strong>Arquivos principais:</strong> <a href="dashboard/dashboard_urbanizacao_webmap.html">dashboard completo</a>; <a href="dashboard/dashboard_comparativo_socio_urbano.html">comparativo socio-urbano</a>; <a href="dashboard/dashboard_pressao_saneamento.html">pressão urbana e saneamento</a>; <a href="dashboard/webmap_manchas_urbanas.html">webmap independente</a>; <a href="README.md">README metodológico</a>.</p>
     </footer>
   </main>
   <script>

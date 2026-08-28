@@ -10,10 +10,11 @@ O arquivo principal é:
 index.html
 ```
 
-Ele direciona para três produtos:
+Ele direciona para quatro produtos:
 
 - `dashboard/dashboard_urbanizacao_webmap.html`
 - `dashboard/dashboard_comparativo_socio_urbano.html`
+- `dashboard/dashboard_pressao_saneamento.html`
 - `dashboard/webmap_manchas_urbanas.html`
 
 ## Arquivos Que Devem Subir
@@ -98,3 +99,8 @@ Para atualizar o dashboard comparativo socio-urbano:
 python scripts/gerar_dashboard_comparativo_socio_urbano.py
 ```
 
+Para atualizar o dashboard de pressão urbana em saneamento:
+
+```bash
+python scripts/gerar_dashboard_pressao_saneamento.py
+```
