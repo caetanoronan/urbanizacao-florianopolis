@@ -1,0 +1,6 @@
+﻿distrito_saneamento,inspecoes_total,inspecoes_adequadas,inspecoes_inadequadas_indicios,nao_conectado_rede,conectado_parcial_rede,tratamento_local_fossa,ligacao_pluvial_irregular,caixa_gordura_problema,pct_inadequadas_indicios,pct_nao_conectado_rede,pct_tratamento_local_fossa,pct_conectado_parcial_rede
+Distrito Centro,5312,3512,4358,648,989,113,1073,2771,82.0407,12.1988,2.1273,18.6182
+Distrito Continente,13044,6709,7343,1332,2200,408,1918,5485,56.2941,10.2116,3.1279,16.866
+Distrito Leste,14817,7709,6919,886,1506,911,1577,5287,46.6964,5.9796,6.1483,10.164
+Distrito Norte,24320,15171,16991,2230,2457,5422,6075,9428,69.8643,9.1694,22.2944,10.1028
+Distrito Sul,7531,2300,2887,630,786,388,761,2111,38.3349,8.3654,5.152,10.4369

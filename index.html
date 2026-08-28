@@ -338,12 +338,12 @@
         </div>
         <button class="theme-toggle" id="theme-toggle" type="button">Modo escuro</button>
       </div>
-      <p class="hero-note">O material organiza camadas vetoriais do Geoportal de Florianópolis, calcula áreas urbanizadas, crescimento por bairro, crescimento por região administrativa, taxas médias por período e pressão urbana nos distritos de saneamento.</p>
+      <p class="hero-note">O material organiza camadas vetoriais do Geoportal de Florianópolis, calcula áreas urbanizadas, crescimento por bairro, crescimento por região administrativa, taxas médias por período e fecha a narrativa com pressão urbana e saneamento.</p>
     </header>
 
     <section>
       <h2>Quatro produtos para usos diferentes</h2>
-      <p class="section-lead">A página reúne o painel analítico principal, um dashboard socio-urbano, um dashboard de pressão urbana em saneamento e um webmap independente. Assim, a história da expansão urbana fica organizada em leituras complementares, sem poluir uma única tela.</p>
+      <p class="section-lead">A página reúne o painel analítico principal, um dashboard socio-urbano, um capítulo de saneamento dividido em leitura síntese e leitura técnica, além de um webmap independente. Assim, a história da expansão urbana fica organizada sem poluir uma única tela.</p>
       <div class="product-grid">
         <article class="card">
           <h3>Dashboard completo</h3>
@@ -377,13 +377,15 @@
         </article>
         <article class="card">
           <h3>Pressão urbana e saneamento</h3>
-          <p>Analisa a expansão urbana dentro dos distritos de saneamento para indicar onde o crescimento territorial pode pressionar a infraestrutura urbana.</p>
+          <p>Analisa a expansão urbana dentro dos distritos de saneamento. A leitura técnica das inspeções fica em arquivo separado para preservar a clareza do painel.</p>
           <ul>
             <li>Indicado para leitura territorial de planejamento.</li>
             <li>Inclui índice exploratório de pressão urbana.</li>
             <li>Compara área urbanizada, população aproximada e percentual urbanizado.</li>
+            <li>Possui painel complementar de inspeções e prioridade.</li>
           </ul>
           <a class="button" href="dashboard/dashboard_pressao_saneamento.html">Abrir saneamento</a>
+          <a class="button" href="dashboard/dashboard_inspecoes_saneamento.html">Abrir inspeções</a>
         </article>
       </div>
     </section>
@@ -410,6 +412,7 @@
         <div class="location-card"><strong>Bairros</strong><span>Interseção entre limites de bairros e manchas urbanas.</span></div>
         <div class="location-card"><strong>Regiões administrativas</strong><span>Agregação territorial dos bairros.</span></div>
         <div class="location-card"><strong>Distritos de saneamento</strong><span>Leitura da pressão urbana sobre infraestrutura.</span></div>
+        <div class="location-card"><strong>Inspeções sanitárias</strong><span>Indícios de adequação, inadequação, fossa e não conexão à rede.</span></div>
         <div class="location-card"><strong>Taxas médias</strong><span>Crescimento anual linear e taxa composta.</span></div>
         <div class="location-card"><strong>Percentual urbanizado</strong><span>Área urbanizada em relação à área total da unidade.</span></div>
         <div class="location-card"><strong>Webmap</strong><span>Camadas interativas com base OSM e Google Satélite.</span></div>
@@ -429,7 +432,7 @@
         </article>
         <article class="card">
           <h3>3. Visualização</h3>
-          <p>Os resultados foram transformados em CSVs, arquivo GeoJSON para webmap, gráficos Plotly, dashboard completo, dashboard socio-urbano, dashboard de saneamento, mapa independente e README metodológico.</p>
+          <p>Os resultados foram transformados em CSVs, arquivo GeoJSON para webmap, gráficos Plotly, dashboard completo, dashboard socio-urbano, dashboard de saneamento com inspeções, mapa independente e README metodológico.</p>
         </article>
       </div>
     </section>
@@ -448,7 +451,7 @@
         </article>
         <article class="card">
           <h3>Para saneamento</h3>
-          <p>Use o dashboard de pressão urbana para comparar os distritos de saneamento e observar onde a expansão territorial recente pode exigir maior atenção de infraestrutura.</p>
+          <p>Use o dashboard de pressão urbana para comparar os distritos de saneamento. Quando precisar aprofundar a parte técnica, use o painel complementar de inspeções sanitárias.</p>
         </article>
       </div>
     </section>
@@ -456,8 +459,8 @@
     <footer class="footer">
       <p><strong>Autoria:</strong> Caetano Ronan - UFSC.</p>
       <p><strong>Produto:</strong> painel interativo e webmap para análise da urbanização de Florianópolis entre 1977, 2002/2003 e 2024.</p>
-      <p><strong>Dados e ferramentas:</strong> Geoportal de Florianópolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024`, `gvw_bairros` e `sau_dist_san.zip`; Python, GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas, OpenStreetMap e Google Satélite.</p>
-      <p><strong>Processamento:</strong> SIRGAS 2000 / UTM zona 22S, EPSG:31982; validação geométrica, dissolução das manchas urbanas, interseção com bairros e distritos de saneamento, agregação territorial e conversão de m² para km².</p>
+      <p><strong>Dados e ferramentas:</strong> Geoportal de Florianópolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024`, `gvw_bairros`, `sau_dist_san.zip` e `inspecoes_smmads_geoportal.zip`; Python, GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas, OpenStreetMap e Google Satélite.</p>
+      <p><strong>Processamento:</strong> SIRGAS 2000 / UTM zona 22S, EPSG:31982; validação geométrica, dissolução das manchas urbanas, interseção com bairros e distritos de saneamento, classificação textual das inspeções, agregação territorial e conversão de m² para km².</p>
       <p><strong>Arquivos principais:</strong> <a href="dashboard/dashboard_urbanizacao_webmap.html">dashboard completo</a>; <a href="dashboard/dashboard_comparativo_socio_urbano.html">comparativo socio-urbano</a>; <a href="dashboard/dashboard_pressao_saneamento.html">pressão urbana e saneamento</a>; <a href="dashboard/webmap_manchas_urbanas.html">webmap independente</a>; <a href="README.md">README metodológico</a>.</p>
     </footer>
   </main>

@@ -15,6 +15,7 @@ Ele direciona para quatro produtos:
 - `dashboard/dashboard_urbanizacao_webmap.html`
 - `dashboard/dashboard_comparativo_socio_urbano.html`
 - `dashboard/dashboard_pressao_saneamento.html`
+- `dashboard/dashboard_inspecoes_saneamento.html`
 - `dashboard/webmap_manchas_urbanas.html`
 
 ## Arquivos Que Devem Subir
@@ -104,3 +105,10 @@ Para atualizar o dashboard de pressão urbana em saneamento:
 ```bash
 python scripts/gerar_dashboard_pressao_saneamento.py
 ```
+
+Esse script depende de:
+
+- `dados_brutos/sau_dist_san.zip`
+- `dados_brutos/inspecoes_smmads_geoportal.zip`
+- manchas urbanas de 1977, 2002/2003 e 2024
+- camada `gvw_bairros`

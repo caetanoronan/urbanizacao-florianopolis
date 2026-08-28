@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inspeções sanitárias e prioridade - Florianópolis</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root {
+  --bg: #f6f2ec; --panel: #ffffff; --ink: #10231f; --muted: #56665f;
+  --grid: #ded8cf; --border: #d8cec2; --shadow: rgba(72,58,44,.10);
+  --chart-bg: rgba(255,255,255,.76); --chart-border: rgba(216,206,194,.72);
+  --teal: #2f8077; --hero-bg: linear-gradient(135deg, #d8f3ef 0%, #d9e9fb 55%, #e7def7 100%);
+  --metric-a: linear-gradient(135deg, #d8f3ef 0%, #edf8f6 100%);
+  --metric-b: linear-gradient(135deg, #d9e9fb 0%, #f0f6ff 100%);
+  --metric-c: linear-gradient(135deg, #d7f0fa 0%, #eefaff 100%);
+  --metric-d: linear-gradient(135deg, #dff3e3 0%, #f2fbf4 100%);
+  --metric-e: linear-gradient(135deg, #e7def7 0%, #f8f3ff 100%);
+}
+body[data-theme="dark"] {
+  --bg: #121817; --panel: #1b2422; --ink: #eef7f3; --muted: #b6c6bf;
+  --grid: #34423d; --border: #3d4d47; --shadow: rgba(0,0,0,.34);
+  --chart-bg: rgba(27,36,34,.72); --chart-border: rgba(61,77,71,.78);
+  --teal: #84d8cc; --hero-bg: linear-gradient(135deg, #183a38 0%, #1b3552 58%, #2d2742 100%);
+  --metric-a: linear-gradient(135deg, #1d3d3a 0%, #1b2c2a 100%);
+  --metric-b: linear-gradient(135deg, #20344d 0%, #1b2530 100%);
+  --metric-c: linear-gradient(135deg, #1c3b48 0%, #1a2a31 100%);
+  --metric-d: linear-gradient(135deg, #213c2a 0%, #1b2a20 100%);
+  --metric-e: linear-gradient(135deg, #302a49 0%, #252033 100%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--ink); }
+main { max-width: 1440px; margin: 0 auto; padding: 34px; }
+header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 22px; background: var(--hero-bg); border: 1px solid var(--border); border-radius: 22px; padding: 32px; box-shadow: 0 10px 28px var(--shadow); }
+h1 { margin: 0; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.05; letter-spacing: 0; }
+.lead { margin: 12px 0 0; color: var(--muted); font-size: 22px; line-height: 1.45; max-width: 980px; }
+.actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.button, button { border: 1px solid var(--border); background: var(--panel); color: var(--ink); border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; padding: 14px 20px; text-decoration: none; white-space: nowrap; }
+.button.primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+body[data-theme="dark"] .button.primary { color: #10231f; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 18px; }
+.metric, .card { padding: 22px; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px var(--shadow); }
+.metric:nth-child(5n+1), .card:nth-child(5n+1) { background: var(--metric-a); }
+.metric:nth-child(5n+2), .card:nth-child(5n+2) { background: var(--metric-b); }
+.metric:nth-child(5n+3), .card:nth-child(5n+3) { background: var(--metric-c); }
+.metric:nth-child(5n+4), .card:nth-child(5n+4) { background: var(--metric-d); }
+.metric:nth-child(5n+5), .card:nth-child(5n+5) { background: var(--metric-e); }
+.metric span { display: block; color: var(--muted); font-size: 15px; margin-bottom: 9px; }
+.metric strong { display: block; font-size: 30px; line-height: 1.08; }
+.tabs { display: grid; gap: 12px; }
+.tab-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px 0 12px; }
+.tab-button.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+body[data-theme="dark"] .tab-button.active { color: #10231f; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 28px var(--shadow); overflow: hidden; }
+.panel-head { margin: 20px 24px 0; padding: 18px; background: rgba(242,235,140,.32); border: 1px solid rgba(166,153,73,.18); border-radius: 12px; }
+.panel-title { margin: 0; font-size: 34px; line-height: 1.12; letter-spacing: 0; }
+.panel-note, .card p, .card li { color: var(--muted); font-size: 17px; line-height: 1.46; }
+.card code { display: block; margin: 10px 0; color: var(--muted); font-family: Consolas, Monaco, monospace; overflow-wrap: anywhere; }
+.plot-wrap { margin: 20px 24px 24px; padding: 18px; background: var(--chart-bg); border: 1px solid var(--chart-border); border-radius: 12px; }
+.chart { width: 100%; min-height: 620px; }
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.card h3 { margin: 0 0 10px; font-size: 22px; line-height: 1.16; }
+.card ul { margin: 0; padding-left: 20px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+th { color: var(--ink); background: var(--panel); position: sticky; top: 0; }
+td { color: var(--muted); }
+footer { margin-top: 22px; padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); color: var(--muted); line-height: 1.55; box-shadow: 0 10px 28px var(--shadow); }
+@media (max-width: 980px) { main { padding: 14px; } header { flex-direction: column; align-items: stretch; } .metrics, .tab-list, .card-grid { grid-template-columns: 1fr; } .chart { min-height: 500px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Inspeções sanitárias e prioridade</h1>
+      <p class="lead">Painel técnico complementar do capítulo de saneamento. Ele isola os registros de inspeção para não sobrecarregar o dashboard de pressão urbana.</p>
+    </div>
+    <div class="actions">
+      <a class="button primary" href="dashboard_pressao_saneamento.html">Ver pressão urbana</a>
+      <a class="button" href="../index.html">Voltar ao índice</a>
+      <button id="theme-toggle" type="button">Modo escuro</button>
+    </div>
+  </header>
+  <section class="metrics">
+    <div class="metric"><span>Inspeções avaliadas</span><strong>65.024</strong></div>
+    <div class="metric"><span>Não conectado à rede</span><strong>5.726</strong></div>
+    <div class="metric"><span>Tratamento local/fossa</span><strong>7.242</strong></div>
+    <div class="metric"><span>Maior prioridade</span><strong>Distrito Norte</strong></div>
+  </section>
+  <section class="tabs">
+    <div class="tab-list" role="tablist">
+      <button class="tab-button active" type="button" data-tab="tab-historia">Leitura</button>
+      <button class="tab-button" type="button" data-tab="tab-escopo">Escopo da base</button>
+      <button class="tab-button" type="button" data-tab="tab-inspecoes">Inspeções</button>
+      <button class="tab-button" type="button" data-tab="tab-prioridade">Prioridade</button>
+      <button class="tab-button" type="button" data-tab="tab-metodo">Metodologia</button>
+      <button class="tab-button" type="button" data-tab="tab-glossario">Glossário</button>
+      <button class="tab-button" type="button" data-tab="tab-tabela">Tabela</button>
+    </div>
+    <div id="tab-historia" class="tab-panel active"><div class="panel"><div class="panel-head"><h2 class="panel-title">Por que este painel foi separado?</h2><p class="panel-note">As inspeções têm uma lógica própria: elas mostram registros de fiscalização e indícios sanitários. Separar este painel preserva a leitura do produto principal e deixa a análise técnica mais clara.</p></div><div class="plot-wrap"><div class="card-grid">
+      <article class="card"><h3>O que aparece aqui</h3><p>Registros agregados por distrito de saneamento: inadequação, não conexão à rede, conexão parcial, tratamento local/fossa, ligação pluvial irregular e problemas de caixa de gordura.</p></article>
+      <article class="card"><h3>Como interpretar</h3><p>Os valores indicam ocorrências registradas nas inspeções. Eles ajudam a enxergar concentração de problemas, mas não substituem cadastro oficial de cobertura da rede.</p></article>
+      <article class="card"><h3>Como fecha a história</h3><p>Este painel liga a expansão urbana à pergunta final de planejamento: onde o território cresceu e onde há mais sinais de pressão sanitária?</p></article>
+    </div></div></div></div>
+    <div id="tab-escopo" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Escopo da base de inspeções</h2><p class="panel-note">Nesta aba o leitor entende a base antes de interpretar os resultados: período coberto, tipos de imóveis inspecionados e principais programas/campanhas identificados nos registros.</p></div><div class="plot-wrap"><div class="card-grid">
+      <article class="card"><h3>Período considerado</h3><p>Foram considerados 65.024 registros de inspeção dentro dos distritos de saneamento, com datas válidas entre 21/03/2011 e 25/01/2025.</p></article>
+      <article class="card"><h3>Perfil dos imóveis</h3><p>Principais categorias registradas: Unifamiliar (24.832); Sem classificação (20.449); Multifamiliar (12.405); Comercial (4.068).</p></article>
+      <article class="card"><h3>Programas identificados</h3><p>Principais programas/campanhas com nome informado: FSLNR (16.018); Trato pela Lagoa (4.283); SANEAR (3.752); TPC (1.684); Trato pela Costa Norte (189).</p></article>
+    </div></div><div class="plot-wrap"><div id="escopoAnosChart" class="chart"></div></div><div class="plot-wrap"><div id="escopoCategoriasChart" class="chart"></div></div><div class="plot-wrap"><div id="escopoProgramasChart" class="chart"></div></div></div></div>
+    <div id="tab-inspecoes" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Registros sanitários por distrito</h2><p class="panel-note">Nesta aba o leitor encontra os principais tipos de ocorrência identificados nas inspeções. As barras agrupadas ajudam a comparar inadequações, não conexão à rede, conexão parcial e tratamento local/fossa entre os distritos.</p></div><div class="plot-wrap"><div id="inspecoesChart" class="chart"></div></div></div></div>
+    <div id="tab-prioridade" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Prioridade integrada</h2><p class="panel-note">Nesta aba aparece o ranking sintético do painel técnico. O índice combina a pressão urbana já calculada com os registros de inspeção, destacando onde os sinais de demanda por investimento se acumulam. Clique em uma barra para fixar a informação antes de exportar em PNG; duplo clique limpa as marcações.</p></div><div class="plot-wrap"><div id="prioridadeChart" class="chart"></div></div></div></div>
+    <div id="tab-metodo" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Metodologia</h2><p class="panel-note">Nesta aba estão as regras de classificação usadas nos textos das inspeções e a fórmula do índice de prioridade integrada. O objetivo é explicar como registros descritivos viraram indicadores comparáveis por distrito de saneamento.</p></div><div class="plot-wrap"><div class="card-grid">
+      <article class="card"><h3>1. Cruzamento espacial</h3><p>Cada registro de inspeção foi cruzado com o polígono dos distritos de saneamento. Assim, cada ocorrência passa a contribuir para o distrito onde está localizada.</p><code>inspeção_distrito = inspeção ∩ distrito_saneamento</code><p>Registros fora dos distritos foram separados e não entram no ranking principal.</p></article>
+      <article class="card"><h3>2. Texto analisado</h3><p>A classificação usa a combinação dos campos de situação e observação. Antes da busca, o texto é convertido para minúsculas e sem acentos, reduzindo falhas por grafia.</p><code>texto = situação_i + situação_e + observações</code><p>Essa etapa permite localizar termos como “não conectado”, “fossa” e “pluvial”.</p></article>
+      <article class="card"><h3>3. Indícios de inadequação</h3><p>Foram contados registros com termos associados a problema, ausência, irregularidade, conexão parcial, não conexão, pluvial, fossa ou tratamento local.</p><code>inadequação = inadequada OR irregular OR ausência OR não conectado OR parcialmente OR pluvial OR fossa OR tratamento local</code><p>É uma contagem de indícios encontrados nas descrições.</p></article>
+      <article class="card"><h3>4. Não conexão à rede</h3><p>Conta registros com menção direta a imóvel não conectado à rede de esgoto sanitário.</p><code>não_conectado = texto contém "não conectado a rede"</code><p>O resultado indica ocorrência registrada em inspeção, não cobertura oficial do sistema.</p></article>
+      <article class="card"><h3>5. Conexão parcial</h3><p>Conta situações em que o texto indica conexão parcial à rede de esgoto sanitário.</p><code>conexão_parcial = texto contém "parcialmente a rede"</code><p>Esse indicador ajuda a identificar transições ou adequações incompletas.</p></article>
+      <article class="card"><h3>6. Tratamento local/fossa</h3><p>Conta registros com menção a fossa, sistema local ou tratamento local.</p><code>tratamento_local = fossa OR sistema local OR tratamento local</code><p>Ele aproxima a dependência de soluções individuais ou não centralizadas.</p></article>
+      <article class="card"><h3>7. Percentuais por distrito</h3><p>Além das contagens absolutas, o painel calcula a participação de cada tipo de ocorrência no total de inspeções do distrito.</p><code>%ocorrência = (ocorrência / inspeções_total) × 100</code><p>Isso evita comparar apenas números brutos entre distritos com quantidades diferentes de inspeções.</p></article>
+      <article class="card"><h3>8. Normalização</h3><p>Os indicadores entram no índice em escala comum de 0 a 100, para que contagens e índices prévios possam ser combinados.</p><code>norm(x) = ((x - xmin) / (xmax - xmin)) × 100</code><p>O maior valor observado recebe 100 e o menor recebe 0.</p></article>
+      <article class="card"><h3>9. Índice de prioridade</h3><p>O índice combina pressão urbana e registros sanitários. A pressão urbana recebe maior peso, seguida por inadequações, não conexão e tratamento local/fossa.</p><code>IPI = 0,35×norm(IPUS) + 0,25×norm(inadequações) + 0,20×norm(não conexão) + 0,20×norm(tratamento local/fossa)</code><p>Quanto maior o IPI, maior a prioridade exploratória para atenção pública.</p></article>
+      <article class="card"><h3>10. Limite da análise</h3><p>O painel trabalha com inspeções e palavras-chave. Ele não substitui cadastro oficial de rede, ligações ativas, capacidade hidráulica, projetos executivos ou dados operacionais da concessionária.</p><code>resultado = leitura exploratória, não diagnóstico operacional</code><p>Essa cautela é essencial para comunicar bem o produto.</p></article>
+      <article class="card"><h3>11. Uso recomendado</h3><p>Use o painel para localizar padrões, levantar hipóteses e orientar perguntas de planejamento: onde cresceram as demandas e onde as inspeções indicam maior atenção?</p><code>planejamento = urbanização + inspeções + prioridade territorial</code><p>A leitura deve apoiar discussão técnica, não substituir vistoria ou engenharia de rede.</p></article>
+      <article class="card"><h3>12. Unidade de comparação</h3><p>Todas as estatísticas são agregadas por distrito de saneamento, mantendo coerência com o painel de pressão urbana.</p><code>unidade = Distrito Centro, Leste, Sul, Continente ou Norte</code><p>Isso amarra a história final à infraestrutura urbana.</p></article>
+    </div></div></div></div>
+    <div id="tab-glossario" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Glossário</h2><p class="panel-note">Nesta aba ficam os termos técnicos do painel de inspeções, para separar o que é registro fiscalizatório, indício sanitário e prioridade exploratória.</p></div><div class="plot-wrap"><div class="card-grid">
+      <article class="card"><h3>Inspeção sanitária</h3><p>Registro de fiscalização ambiental/sanitária associado a uma edificação, imóvel ou situação observada em campo.</p></article>
+      <article class="card"><h3>Situação da edificação</h3><p>Classificação geral do registro, como adequada, inadequada, irregular ou não inspecionada.</p></article>
+      <article class="card"><h3>Indício textual</h3><p>Ocorrência identificada por palavras-chave nos campos descritivos da base, como “não conectado”, “fossa” ou “pluvial”.</p></article>
+      <article class="card"><h3>Não conectado à rede</h3><p>Registro com menção a imóvel não conectado à rede de esgoto sanitário. É um indício, não um cadastro oficial de ligação.</p></article>
+      <article class="card"><h3>Conexão parcial</h3><p>Situação em que o imóvel aparece como parcialmente conectado à rede de esgoto sanitário.</p></article>
+      <article class="card"><h3>Tratamento local/fossa</h3><p>Registro com menção a fossa, sistema local ou tratamento local, indicando solução individual ou não centralizada.</p></article>
+      <article class="card"><h3>Ligação pluvial irregular</h3><p>Indício de água pluvial conectada à rede de esgoto ou esgoto sanitário conectado à rede pluvial.</p></article>
+      <article class="card"><h3>Caixa de gordura</h3><p>Elemento do sistema predial citado nas inspeções; ausência ou inadequação pode indicar problema no manejo de efluentes.</p></article>
+      <article class="card"><h3>Prioridade integrada</h3><p>Índice de 0 a 100 que combina pressão urbana e registros sanitários para orientar comunicação e planejamento.</p></article>
+      <article class="card"><h3>Leitura exploratória</h3><p>Interpretação usada para encontrar padrões e hipóteses. Ela não substitui laudo, projeto executivo ou base operacional da concessionária.</p></article>
+      <article class="card"><h3>Distrito de saneamento</h3><p>Unidade territorial usada para agregar os registros e aproximar a leitura da organização espacial dos serviços de saneamento.</p></article>
+      <article class="card"><h3>Normalização</h3><p>Conversão dos indicadores para escala comum antes de combiná-los no índice integrado.</p></article>
+    </div></div></div></div>
+    <div id="tab-tabela" class="tab-panel"><div class="panel"><div class="panel-head"><h2 class="panel-title">Tabela síntese</h2><p class="panel-note">Nesta aba o leitor encontra o resumo numérico por distrito de saneamento, reunindo as contagens principais e o índice de prioridade integrada.</p></div><div class="plot-wrap table-wrap"><table id="summaryTable"></table></div></div></div>
+  </section>
+  <footer><strong>Autoria:</strong> Caetano Ronan - UFSC. <strong>Fonte:</strong> `inspecoes_smmads_geoportal.zip`, `sau_dist_san.zip` e indicadores do painel de pressão urbana. Leitura exploratória para comunicação e planejamento, não diagnóstico operacional de rede.</footer>
+</main>
+<script>
+const data = {"records": [{"distrito_saneamento": "Distrito Norte", "area_km2": 157.6206, "urb1977_km2": 10.5782, "urb2002_2003_km2": 28.6729, "urb2024_km2": 44.4659, "crescimento_1977_2024_km2": 33.8877, "pct_urb_1977": 6.7112, "pct_urb_2002_2003": 18.1911, "pct_urb_2024": 28.2107, "pop_estimada_aprox": 149643.959, "dom_estima_aprox": 91868.321, "densidade_aprox_hab_km2": 949.3934, "crescimento_por_1000_hab_km2": 0.2265, "bairros_relevantes": "Saco Grande, Moçambique, Rio Vermelho, Cachoeira do Bom Jesus, Ponta das Canas, Praia Brava, Vargem do Bom Jesus, Vargem Grande, Canasvieiras, Daniela, Jurerê, Praia do Forte", "inspecoes_total": 24320, "inspecoes_adequadas": 15171, "inspecoes_inadequadas_indicios": 16991, "nao_conectado_rede": 2230, "conectado_parcial_rede": 2457, "tratamento_local_fossa": 5422, "ligacao_pluvial_irregular": 6075, "caixa_gordura_problema": 9428, "pct_inadequadas_indicios": 69.8643, "pct_nao_conectado_rede": 9.1694, "pct_tratamento_local_fossa": 22.2944, "pct_conectado_parcial_rede": 10.1028, "indice_pressao_urbana_saneamento": 70.1398, "indice_prioridade_investimento": 100.0}, {"distrito_saneamento": "Distrito Sul", "area_km2": 140.2397, "urb1977_km2": 9.1557, "urb2002_2003_km2": 19.8615, "urb2024_km2": 32.6624, "crescimento_1977_2024_km2": 23.5067, "pct_urb_1977": 6.5286, "pct_urb_2002_2003": 14.1626, "pct_urb_2024": 23.2904, "pop_estimada_aprox": 113711.1094, "dom_estima_aprox": 56387.4263, "densidade_aprox_hab_km2": 810.8339, "crescimento_por_1000_hab_km2": 0.2067, "bairros_relevantes": "Carvoeira, Costeira do Pirajubaé, Saco dos Limões, Tapera da Base, Campeche, Morro das Pedras, Rio Tavares, Armação, Pântano do Sul, Alto Ribeirão, Ribeirão da Ilha, Carianos", "inspecoes_total": 7531, "inspecoes_adequadas": 2300, "inspecoes_inadequadas_indicios": 2887, "nao_conectado_rede": 630, "conectado_parcial_rede": 786, "tratamento_local_fossa": 388, "ligacao_pluvial_irregular": 761, "caixa_gordura_problema": 2111, "pct_inadequadas_indicios": 38.3349, "pct_nao_conectado_rede": 8.3654, "pct_tratamento_local_fossa": 5.152, "pct_conectado_parcial_rede": 10.4369, "indice_pressao_urbana_saneamento": 52.4177, "indice_prioridade_investimento": 24.2623}, {"distrito_saneamento": "Distrito Continente", "area_km2": 11.7751, "urb1977_km2": 11.3822, "urb2002_2003_km2": 11.1781, "urb2024_km2": 11.5868, "crescimento_1977_2024_km2": 0.2046, "pct_urb_1977": 96.6632, "pct_urb_2002_2003": 94.9297, "pct_urb_2024": 98.4004, "pop_estimada_aprox": 91380.7403, "dom_estima_aprox": 42296.8601, "densidade_aprox_hab_km2": 7760.4888, "crescimento_por_1000_hab_km2": 0.0022, "bairros_relevantes": "Abraão, Balneário, Bom Abrigo, Canto, Capoeiras, Coloninha, Coqueiros, Estreito, Itaguaçu, Jardim Atlântico, Monte Cristo, Jardim Capoeiras", "inspecoes_total": 13044, "inspecoes_adequadas": 6709, "inspecoes_inadequadas_indicios": 7343, "nao_conectado_rede": 1332, "conectado_parcial_rede": 2200, "tratamento_local_fossa": 408, "ligacao_pluvial_irregular": 1918, "caixa_gordura_problema": 5485, "pct_inadequadas_indicios": 56.2941, "pct_nao_conectado_rede": 10.2116, "pct_tratamento_local_fossa": 3.1279, "pct_conectado_parcial_rede": 16.866, "indice_pressao_urbana_saneamento": 35.0, "indice_prioridade_investimento": 29.4397}, {"distrito_saneamento": "Distrito Centro", "area_km2": 11.632, "urb1977_km2": 8.6396, "urb2002_2003_km2": 10.0174, "urb2024_km2": 10.0237, "crescimento_1977_2024_km2": 1.3842, "pct_urb_1977": 74.2742, "pct_urb_2002_2003": 86.1194, "pct_urb_2024": 86.1738, "pop_estimada_aprox": 86979.4013, "dom_estima_aprox": 45097.2379, "densidade_aprox_hab_km2": 7477.5976, "crescimento_por_1000_hab_km2": 0.0159, "bairros_relevantes": "Agronômica, Carvoeira, Centro, José Mendes, Trindade", "inspecoes_total": 5312, "inspecoes_adequadas": 3512, "inspecoes_inadequadas_indicios": 4358, "nao_conectado_rede": 648, "conectado_parcial_rede": 989, "tratamento_local_fossa": 113, "ligacao_pluvial_irregular": 1073, "caixa_gordura_problema": 2771, "pct_inadequadas_indicios": 82.0407, "pct_nao_conectado_rede": 12.1988, "pct_tratamento_local_fossa": 2.1273, "pct_conectado_parcial_rede": 18.6182, "indice_pressao_urbana_saneamento": 32.5942, "indice_prioridade_investimento": 12.8891}, {"distrito_saneamento": "Distrito Leste", "area_km2": 106.6235, "urb1977_km2": 9.5319, "urb2002_2003_km2": 13.9074, "urb2024_km2": 17.1974, "crescimento_1977_2024_km2": 7.6655, "pct_urb_1977": 8.9398, "pct_urb_2002_2003": 13.0435, "pct_urb_2024": 16.1291, "pop_estimada_aprox": 88931.1717, "dom_estima_aprox": 46068.9655, "densidade_aprox_hab_km2": 834.067, "crescimento_por_1000_hab_km2": 0.0862, "bairros_relevantes": "Carvoeira, Córrego Grande, Itacorubi, João Paulo, Monte Verde, Pantanal, Saco Grande, Santa Mônica, Barra da Lagoa, Costa da Lagoa, Lagoa da Conceição, Moçambique", "inspecoes_total": 14817, "inspecoes_adequadas": 7709, "inspecoes_inadequadas_indicios": 6919, "nao_conectado_rede": 886, "conectado_parcial_rede": 1506, "tratamento_local_fossa": 911, "ligacao_pluvial_irregular": 1577, "caixa_gordura_problema": 5287, "pct_inadequadas_indicios": 46.6964, "pct_nao_conectado_rede": 5.9796, "pct_tratamento_local_fossa": 6.1483, "pct_conectado_parcial_rede": 10.164, "indice_pressao_urbana_saneamento": 17.4566, "indice_prioridade_investimento": 13.3531}], "stats": {"distritos": 5, "maior_pressao": "Distrito Norte", "maior_pressao_indice": 70.13978839226368, "maior_crescimento": "Distrito Norte", "maior_crescimento_valor": 33.88772017657066, "maior_pct": "Distrito Continente", "maior_pct_valor": 98.40043588315352, "crescimento_total": 66.6487031682491, "pop_total_aprox": 530646.3816664915, "inspecoes_total": 65024, "nao_conectado_total": 5726, "tratamento_local_total": 7242, "maior_prioridade": "Distrito Norte", "maior_prioridade_indice": 100.0, "inspecoes_data_inicio": "21/03/2011", "inspecoes_data_fim": "25/01/2025", "categorias_imoveis": "Unifamiliar (24.832); Sem classificação (20.449); Multifamiliar (12.405); Comercial (4.068)", "programas_inspecao": "FSLNR (16.018); Trato pela Lagoa (4.283); SANEAR (3.752); TPC (1.684); Trato pela Costa Norte (189)"}, "scope": {"anos": [{"ano": 2011, "registros": 1}, {"ano": 2012, "registros": 1}, {"ano": 2013, "registros": 365}, {"ano": 2014, "registros": 2164}, {"ano": 2015, "registros": 1767}, {"ano": 2016, "registros": 3360}, {"ano": 2017, "registros": 603}, {"ano": 2018, "registros": 671}, {"ano": 2019, "registros": 2174}, {"ano": 2020, "registros": 7582}, {"ano": 2021, "registros": 9302}, {"ano": 2022, "registros": 13421}, {"ano": 2023, "registros": 17869}, {"ano": 2024, "registros": 5386}, {"ano": 2025, "registros": 1}], "categorias": [{"categoria": "Unifamiliar", "registros": 24832}, {"categoria": "Sem classificação", "registros": 20449}, {"categoria": "Multifamiliar", "registros": 12405}, {"categoria": "Comercial", "registros": 4068}], "programas": [{"programa": "FSLNR", "registros": 16018}, {"programa": "Trato pela Lagoa", "registros": 4283}, {"programa": "SANEAR", "registros": 3752}, {"programa": "TPC", "registros": 1684}, {"programa": "Trato pela Costa Norte", "registros": 189}]}};
+const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+const cssVar = name => getComputedStyle(document.body).getPropertyValue(name).trim();
+const colors = ['#c7b7e8', '#e7a9b2', '#f2b8a0', '#9eb5df', '#d4a4cf', '#b9bfdc'];
+const barLine = { color: 'rgba(16,35,31,.28)', width: 1 };
+const config = name => ({ responsive: true, displayModeBar: true, displaylogo: false, toImageButtonOptions: { format: 'png', filename: name, height: 900, width: 1400, scale: 2 } });
+const layout = extra => ({
+  paper_bgcolor: '#ffffff',
+  plot_bgcolor: '#ffffff',
+  font: { family: 'Arial, sans-serif', color: '#10231f' },
+  margin: { l: 150, r: 80, t: 48, b: 86 },
+  xaxis: {
+    color: '#10231f',
+    gridcolor: '#e6e0d8',
+    zerolinecolor: '#cfc6bb',
+    linecolor: '#b8aca0',
+    tickfont: { color: '#10231f' },
+    titlefont: { color: '#10231f' }
+  },
+  yaxis: {
+    color: '#10231f',
+    gridcolor: '#e6e0d8',
+    zerolinecolor: '#cfc6bb',
+    linecolor: '#b8aca0',
+    tickfont: { color: '#10231f' },
+    titlefont: { color: '#10231f' }
+  },
+  legend: { font: { color: '#10231f' } },
+  ...extra
+});
+function rowsAsc(field) { return [...data.records].sort((a, b) => a[field] - b[field]); }
+function pinClickLabel(chartId, formatter) {
+  const chart = document.getElementById(chartId);
+  if (!chart || chart.dataset.pinClickReady) return;
+  chart.dataset.pinClickReady = 'true';
+  chart.on('plotly_click', event => {
+    const point = event.points && event.points[0];
+    if (!point) return;
+    const annotations = [...((chart.layout && chart.layout.annotations) || [])];
+    annotations.push({
+      x: point.x,
+      y: point.y,
+      xref: 'x',
+      yref: 'y',
+      text: formatter(point),
+      showarrow: true,
+      arrowhead: 2,
+      ax: 42,
+      ay: -36,
+      align: 'left',
+      bgcolor: '#ffffff',
+      bordercolor: '#b8aca0',
+      borderwidth: 1,
+      borderpad: 8,
+      font: { color: '#10231f', size: 13 }
+    });
+    Plotly.relayout(chart, { annotations: annotations.slice(-6) });
+  });
+  chart.on('plotly_doubleclick', () => Plotly.relayout(chart, { annotations: [] }));
+}
+function renderCharts() {
+  const scopeYears = data.scope.anos;
+  Plotly.newPlot('escopoAnosChart', [{
+    type: 'bar',
+    x: scopeYears.map(d => d.ano),
+    y: scopeYears.map(d => d.registros),
+    marker: { color: '#c7b7e8', line: barLine },
+    opacity: .94,
+    text: scopeYears.map(d => fmt.format(d.registros)),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '<b>%{x}</b><br>Inspeções: %{y}<extra></extra>'
+  }], layout({
+    margin: { l: 80, r: 50, t: 48, b: 80 },
+    xaxis: { title: 'Ano da inspeção', tickmode: 'linear', dtick: 1 },
+    yaxis: { title: 'Registros de inspeção' },
+    title: { text: 'Distribuição temporal das inspeções', font: { color: '#10231f', size: 20 } }
+  }), config('escopo_inspecoes_por_ano'));
+
+  const scopeCategorias = [...data.scope.categorias].reverse();
+  Plotly.newPlot('escopoCategoriasChart', [{
+    type: 'bar',
+    x: scopeCategorias.map(d => d.registros),
+    y: scopeCategorias.map(d => d.categoria),
+    orientation: 'h',
+    marker: { color: scopeCategorias.map((d, i) => colors[i % colors.length]), line: barLine },
+    opacity: .94,
+    text: scopeCategorias.map(d => fmt.format(d.registros)),
+    textposition: 'outside',
+    cliponaxis: false
+  }], layout({
+    xaxis: { title: 'Registros' },
+    yaxis: { automargin: true },
+    title: { text: 'Perfil dos imóveis inspecionados', font: { color: '#10231f', size: 20 } }
+  }), config('escopo_perfil_imoveis'));
+
+  const scopeProgramas = [...data.scope.programas].reverse();
+  Plotly.newPlot('escopoProgramasChart', [{
+    type: 'bar',
+    x: scopeProgramas.map(d => d.registros),
+    y: scopeProgramas.map(d => d.programa),
+    orientation: 'h',
+    marker: { color: scopeProgramas.map((d, i) => colors[(i + 2) % colors.length]), line: barLine },
+    opacity: .94,
+    text: scopeProgramas.map(d => fmt.format(d.registros)),
+    textposition: 'outside',
+    cliponaxis: false
+  }], layout({
+    xaxis: { title: 'Registros com programa informado' },
+    yaxis: { automargin: true },
+    title: { text: 'Programas e campanhas identificados', font: { color: '#10231f', size: 20 } }
+  }), config('escopo_programas_identificados'));
+
+  const rows = rowsAsc('inspecoes_inadequadas_indicios');
+  const y = rows.map(d => d.distrito_saneamento);
+  Plotly.newPlot('inspecoesChart', [
+    { type: 'bar', name: 'Indícios de inadequação', x: rows.map(d => d.inspecoes_inadequadas_indicios), y, orientation: 'h', marker: { color: colors[0], line: barLine }, opacity: .92, text: rows.map(d => fmt.format(d.inspecoes_inadequadas_indicios)), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: 'Não conectado à rede', x: rows.map(d => d.nao_conectado_rede), y, orientation: 'h', marker: { color: colors[1], line: barLine }, opacity: .92, text: rows.map(d => fmt.format(d.nao_conectado_rede)), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: 'Conexão parcial', x: rows.map(d => d.conectado_parcial_rede), y, orientation: 'h', marker: { color: colors[2], line: barLine }, opacity: .92, text: rows.map(d => fmt.format(d.conectado_parcial_rede)), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: 'Tratamento local/fossa', x: rows.map(d => d.tratamento_local_fossa), y, orientation: 'h', marker: { color: colors[3], line: barLine }, opacity: .92, text: rows.map(d => fmt.format(d.tratamento_local_fossa)), textposition: 'outside', cliponaxis: false }
+  ], layout({ barmode: 'group', xaxis: { title: 'Número de registros', gridcolor: cssVar('--grid') }, yaxis: { automargin: true }, legend: { orientation: 'h', y: 1.16 } }), config('inspecoes_sanitarias_distritos'));
+  const pr = rowsAsc('indice_prioridade_investimento');
+  Plotly.newPlot('prioridadeChart', [{
+    type: 'bar', x: pr.map(d => d.indice_prioridade_investimento), y: pr.map(d => d.distrito_saneamento), orientation: 'h',
+    marker: { color: pr.map((d, i) => colors[i % colors.length]), line: barLine }, opacity: .94, text: pr.map(d => fmt.format(d.indice_prioridade_investimento)), textposition: 'outside', cliponaxis: false,
+    customdata: pr.map(d => [d.indice_pressao_urbana_saneamento, d.inspecoes_inadequadas_indicios, d.nao_conectado_rede, d.tratamento_local_fossa]),
+    hovertemplate: '<b>%{y}</b><br>Prioridade: %{x:.2f}<br>Pressão urbana: %{customdata[0]:.2f}<br>Inadequações: %{customdata[1]}<br>Não conectado: %{customdata[2]}<br>Tratamento local/fossa: %{customdata[3]}<extra></extra>'
+  }], layout({ xaxis: { title: 'Índice de prioridade integrada (0-100)', gridcolor: cssVar('--grid'), range: [0, 112] }, yaxis: { automargin: true } }), config('prioridade_integrada_saneamento'));
+  pinClickLabel('prioridadeChart', point => `<b>${point.y}</b><br>Prioridade: ${fmt.format(point.x)}<br>Pressão urbana: ${fmt.format(point.customdata[0])}<br>Inadequações: ${fmt.format(point.customdata[1])}<br>Não conectado: ${fmt.format(point.customdata[2])}<br>Trat. local/fossa: ${fmt.format(point.customdata[3])}`);
+}
+function renderTable() {
+  const head = ['Distrito', 'Inspeções', 'Inadequações', 'Não conectado', 'Conexão parcial', 'Tratamento local/fossa', 'Prioridade'];
+  const body = [...data.records].sort((a,b)=>b.indice_prioridade_investimento-a.indice_prioridade_investimento).map(d => `<tr><td>${d.distrito_saneamento}</td><td>${fmt.format(d.inspecoes_total)}</td><td>${fmt.format(d.inspecoes_inadequadas_indicios)}</td><td>${fmt.format(d.nao_conectado_rede)}</td><td>${fmt.format(d.conectado_parcial_rede)}</td><td>${fmt.format(d.tratamento_local_fossa)}</td><td>${fmt.format(d.indice_prioridade_investimento)}</td></tr>`).join('');
+  document.getElementById('summaryTable').innerHTML = `<thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody>`;
+}
+function applyTheme(theme) { document.body.dataset.theme = theme; document.getElementById('theme-toggle').textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro'; localStorage.setItem('urbanizacao-inspecoes-theme-floripa', theme); window.setTimeout(renderCharts, 40); }
+document.querySelectorAll('.tab-button').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.tab-button').forEach(item => item.classList.toggle('active', item === button)); document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === button.dataset.tab)); window.setTimeout(() => ['escopoAnosChart','escopoCategoriasChart','escopoProgramasChart','inspecoesChart','prioridadeChart'].forEach(id => { const el=document.getElementById(id); if (el) Plotly.Plots.resize(el); }), 80); }));
+document.getElementById('theme-toggle').addEventListener('click', () => applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark'));
+renderTable();
+applyTheme(localStorage.getItem('urbanizacao-inspecoes-theme-floripa') || 'light');
+</script>
+</body>
+</html>

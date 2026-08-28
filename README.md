@@ -14,6 +14,7 @@ O produto compara três recortes temporais:
 - `dashboard/dashboard_urbanizacao_webmap.html`: dashboard principal com cartões, abas, webmap e gráficos Plotly.
 - `dashboard/dashboard_comparativo_socio_urbano.html`: dashboard complementar que cruza crescimento urbano por bairro com população, densidade e domicílios.
 - `dashboard/dashboard_pressao_saneamento.html`: dashboard complementar sobre pressão urbana nos distritos de saneamento.
+- `dashboard/dashboard_inspecoes_saneamento.html`: painel técnico complementar com inspeções sanitárias e prioridade integrada.
 - `dashboard/webmap_manchas_urbanas.html`: webmap isolado para abrir em outra aba ou usar em apresentação.
 - `dashboard/urbanizacao_webmap_data.js`: dados GeoJSON e estatísticas usados pelos HTMLs.
 - `scripts/gerar_dashboard_urbanizacao_webmap.py`: script que gera os CSVs, o arquivo JS e os HTMLs.
@@ -33,16 +34,19 @@ urbanizacao_florianopolis/
     mancha_urb2002.zip
     censo2022_setores_dd.zip
     gvw_bairros.zip
+    inspecoes_smmads_geoportal.zip
     sau_dist_san.zip
   dashboard/
     dashboard_urbanizacao_webmap.html
     dashboard_comparativo_socio_urbano.html
+    dashboard_inspecoes_saneamento.html
     dashboard_pressao_saneamento.html
     webmap_manchas_urbanas.html
     urbanizacao_webmap_data.js
   resultados/
     areas_urbanizadas_totais_1977_2002_2024.csv
     comparativo_socio_urbano_bairros.csv
+    inspecoes_saneamento_por_distrito.csv
     pressao_urbana_distritos_saneamento.csv
     classes_uso_2024.csv
     taxas_urbanizacao_1977_2002_2024.csv
@@ -68,6 +72,7 @@ As camadas usadas no processamento principal são:
 - `areas_urbanizadas_2024`: classificação territorial de 2024.
 - `gvw_bairros`: limites dos bairros e regiões administrativas.
 - `sau_dist_san.zip`: distritos de saneamento, com cinco unidades territoriais: Centro, Leste, Sul, Continente e Norte.
+- `inspecoes_smmads_geoportal.zip`: registros de inspeções sanitárias/ambientais com situação da edificação, categoria do imóvel, situação identificada e observações.
 
 Todas as camadas principais estão em `SIRGAS 2000 / UTM zone 22S`, EPSG:31982. Como é um sistema projetado em metros, ele permite calcular áreas diretamente em m² e converter para km².
 
@@ -98,7 +103,18 @@ Leitura inicial:
 - Norte e Sul concentram a maior expansão absoluta entre 1977 e 2024.
 - Centro e Continente aparecem como áreas historicamente consolidadas, com percentual urbanizado muito alto em 2024.
 - Leste possui crescimento intermediário e pode ser analisado junto com bairros como Rio Vermelho e áreas de expansão mais recente.
-- O dashboard `dashboard/dashboard_pressao_saneamento.html` transforma essa leitura em gráficos Plotly, metodologia, glossário e tabela síntese.
+- O dashboard `dashboard/dashboard_pressao_saneamento.html` transforma essa leitura em gráficos Plotly, metodologia, glossário e tabela síntese. As inspeções sanitárias ficam separadas em `dashboard/dashboard_inspecoes_saneamento.html`, para não saturar a leitura principal.
+
+### Fechamento Da Narrativa
+
+O produto foi organizado como uma sequência de quatro leituras:
+
+1. Expansão da mancha urbana: mostra quanto Florianópolis cresceu entre 1977 e 2024.
+2. Webmap: mostra onde esse crescimento ocorreu no território.
+3. Comparativo socio-urbano: relaciona crescimento, população, densidade e domicílios.
+4. Pressão urbana e saneamento: cruza crescimento urbano com distritos de saneamento; a leitura técnica separada cruza esse resultado com registros de inspeção.
+
+Esse último painel fecha a história porque transforma a expansão urbana em pergunta de planejamento: onde o crescimento territorial, a ocupação consolidada e os indícios sanitários sugerem maior necessidade de atenção pública?
 
 ### Índice Exploratório De Pressão Urbana
 
@@ -119,6 +135,30 @@ Onde:
 - `ΔA_1977_2024` representa o crescimento absoluto da mancha urbana no distrito;
 - `%urb_2024` representa o percentual do distrito ocupado por área urbanizada em 2024;
 - `ΔA_1977_2024 por 1.000 habitantes` aproxima a pressão territorial relativa à população estimada.
+
+### Índice Integrado De Prioridade
+
+Com a camada `inspecoes_smmads_geoportal.zip`, o dashboard também calcula um índice integrado de prioridade:
+
+```text
+IPI = 0,35 × N(IPUS)
+    + 0,25 × N(inspeções com indícios de inadequação)
+    + 0,20 × N(registros de não conexão à rede)
+    + 0,20 × N(registros de tratamento local/fossa)
+```
+
+Os registros foram classificados por busca textual nos campos `situacao_e`, `situacao_i` e `observacoe`.
+
+```text
+Indícios de inadequação = registros com termos como inadequada, irregular, ausência,
+não conectado, parcialmente, pluvial, tratamento local ou fossa.
+```
+
+```text
+Tratamento local/fossa = registros com menção a fossa, sistema local ou tratamento local.
+```
+
+Esse índice não substitui cadastro operacional de rede, ligações ou capacidade do sistema. Ele serve como leitura exploratória para indicar onde a pressão urbana e os registros sanitários se sobrepõem.
 
 ## Observação Sobre 2002/2003
 
@@ -349,8 +389,14 @@ O script complementar `scripts/gerar_dashboard_pressao_saneamento.py` executa es
 7. Calcula crescimento absoluto por distrito.
 8. Calcula crescimento urbano por 1.000 habitantes.
 9. Normaliza os indicadores e calcula o índice exploratório de pressão urbana em saneamento.
-10. Exporta `resultados/pressao_urbana_distritos_saneamento.csv`.
-11. Gera `dashboard/dashboard_pressao_saneamento.html`.
+10. Lê `inspecoes_smmads_geoportal.zip`.
+11. Classifica registros textuais com indícios de inadequação, não conexão à rede, conexão parcial, tratamento local/fossa, ligação pluvial irregular e problemas de caixa de gordura.
+12. Agrega as inspeções por distrito de saneamento.
+13. Calcula o índice integrado de prioridade.
+14. Exporta `resultados/pressao_urbana_distritos_saneamento.csv`.
+15. Exporta `resultados/inspecoes_saneamento_por_distrito.csv`.
+16. Gera `dashboard/dashboard_pressao_saneamento.html`.
+17. Gera `dashboard/dashboard_inspecoes_saneamento.html`.
 
 ## Como Regenerar O Dashboard
 
@@ -393,7 +439,9 @@ O script comparativo atualiza:
 O script de saneamento atualiza:
 
 - `dashboard/dashboard_pressao_saneamento.html`
+- `dashboard/dashboard_inspecoes_saneamento.html`
 - `resultados/pressao_urbana_distritos_saneamento.csv`
+- `resultados/inspecoes_saneamento_por_distrito.csv`
 
 ## Visualização
 
@@ -419,6 +467,12 @@ Abra o dashboard de pressão urbana em saneamento:
 
 ```text
 dashboard/dashboard_pressao_saneamento.html
+```
+
+Abra o painel técnico de inspeções sanitárias:
+
+```text
+dashboard/dashboard_inspecoes_saneamento.html
 ```
 
 Os gráficos são feitos com Plotly e permitem exportação em PNG pelo botão de câmera da barra de ferramentas.

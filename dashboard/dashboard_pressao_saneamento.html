@@ -15,6 +15,8 @@
   --border: #d8cec2;
   --shadow: rgba(72, 58, 44, .10);
   --teal: #2f8077;
+  --chart-bg: rgba(255, 255, 255, .76);
+  --chart-border: rgba(216, 206, 194, .72);
   --hero-bg: linear-gradient(135deg, #c8eee8 0%, #c7dcf5 55%, #e7d8f0 100%);
   --metric-a: linear-gradient(135deg, #d8f3ef 0%, #edf8f6 100%);
   --metric-b: linear-gradient(135deg, #d9e9fb 0%, #f0f6ff 100%);
@@ -31,6 +33,8 @@ body[data-theme="dark"] {
   --border: #3d4d47;
   --shadow: rgba(0, 0, 0, .34);
   --teal: #84d8cc;
+  --chart-bg: rgba(27, 36, 34, .72);
+  --chart-border: rgba(61, 77, 71, .78);
   --hero-bg: linear-gradient(135deg, #183a38 0%, #1b3552 58%, #2d2742 100%);
   --metric-a: linear-gradient(135deg, #1d3d3a 0%, #1b2c2a 100%);
   --metric-b: linear-gradient(135deg, #20344d 0%, #1b2530 100%);
@@ -92,8 +96,8 @@ body[data-theme="dark"] .tab-button.active { color: #10231f; }
 .panel-title { margin: 0; font-size: 34px; line-height: 1.12; letter-spacing: 0; }
 .panel-note { margin: 10px 0 0; color: var(--muted); line-height: 1.45; font-size: 18px; }
 .plot-wrap {
-  margin: 20px 24px 24px; padding: 18px; background: rgba(242, 235, 140, .36);
-  border: 1px solid rgba(166, 153, 73, .18); border-radius: 12px;
+  margin: 20px 24px 24px; padding: 18px; background: var(--chart-bg);
+  border: 1px solid var(--chart-border); border-radius: 12px;
 }
 .chart { width: 100%; min-height: 640px; }
 .info-grid, .formula-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -106,10 +110,11 @@ body[data-theme="dark"] .tab-button.active { color: #10231f; }
 .info-card:nth-child(5n + 4), .formula:nth-child(5n + 4), .footer-card:nth-child(5n + 4) { background: var(--metric-d); }
 .info-card:nth-child(5n + 5), .formula:nth-child(5n + 5), .footer-card:nth-child(5n + 5) { background: var(--metric-e); }
 .info-card h3, .formula strong, .footer-card strong { display: block; margin: 0 0 10px; color: var(--ink); font-size: 21px; line-height: 1.16; }
-.info-card p, .info-card li, .formula code, .footer-card p {
+.info-card p, .info-card li, .formula p, .formula code, .footer-card p {
   color: var(--muted); font-size: 16px; line-height: 1.46;
 }
-.info-card p, .footer-card p { margin: 0; }
+.info-card p, .formula p, .footer-card p { margin: 0 0 10px; }
+.formula p:last-child, .footer-card p:last-child { margin-bottom: 0; }
 .info-card ul { margin: 0; padding-left: 20px; }
 .formula code { display: block; white-space: normal; overflow-wrap: anywhere; font-family: Consolas, Monaco, monospace; }
 .table-wrap { overflow-x: auto; }
@@ -176,34 +181,37 @@ tbody tr:nth-child(5n + 5) { background: rgba(231, 222, 247, .42); }
     </div>
 
     <div id="tab-evolucao" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Evolução urbana por distrito</h2><p class="panel-note">Compara a área urbanizada em 1977, 2002/2003 e 2024 dentro de cada distrito de saneamento.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Evolução urbana por distrito</h2><p class="panel-note">Nesta aba o leitor encontra a comparação direta da área urbanizada em 1977, 2002/2003 e 2024 dentro de cada distrito de saneamento. O gráfico mostra onde a mancha urbana cresceu em área absoluta.</p></div>
       <div class="plot-wrap"><div id="evolucaoChart" class="chart"></div></div></div>
     </div>
 
     <div id="tab-pressao" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Índice de pressão urbana sobre saneamento</h2><p class="panel-note">Síntese em escala 0-100 combinando crescimento urbano absoluto, percentual urbanizado em 2024 e crescimento por mil habitantes.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Índice de pressão urbana sobre saneamento</h2><p class="panel-note">Nesta aba aparece a síntese do painel: um índice de 0 a 100 que combina crescimento urbano absoluto, percentual urbanizado em 2024 e crescimento por mil habitantes. Clique em uma barra para fixar a informação no gráfico antes de exportar em PNG; duplo clique limpa as marcações.</p></div>
       <div class="plot-wrap"><div id="pressaoChart" class="chart"></div></div></div>
     </div>
 
     <div id="tab-percentual" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Percentual urbanizado por distrito</h2><p class="panel-note">Mostra quanto da área de cada distrito já estava ocupada pela mancha urbana em cada recorte temporal.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Percentual urbanizado por distrito</h2><p class="panel-note">Nesta aba o leitor observa o grau de ocupação de cada distrito. O gráfico ajuda a diferenciar distritos com grande crescimento recente daqueles que já estavam altamente urbanizados.</p></div>
       <div class="plot-wrap"><div id="percentualChart" class="chart"></div></div></div>
     </div>
 
     <div id="tab-metodologia" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Metodologia e estatísticas</h2><p class="panel-note">Fórmulas usadas para transformar os distritos de saneamento em indicadores comparáveis.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Metodologia e estatísticas</h2><p class="panel-note">Nesta aba estão as fórmulas usadas para transformar camadas espaciais em indicadores comparáveis. A leitura é feita por distrito de saneamento, sempre em km², usando interseção espacial entre polígonos e normalização dos indicadores antes da composição do índice.</p></div>
       <div class="plot-wrap"><div class="formula-grid">
-        <div class="formula"><strong>Área urbanizada por distrito</strong><code>Aurb_dist(ano) = área(interseção distrito ∩ mancha urbana ano) / 1.000.000</code></div>
-        <div class="formula"><strong>Crescimento absoluto</strong><code>ΔA = Aurb_dist(2024) - Aurb_dist(1977)</code></div>
-        <div class="formula"><strong>Percentual urbanizado</strong><code>%urb = (Aurb_dist / área_total_distrito) × 100</code></div>
-        <div class="formula"><strong>População aproximada</strong><code>Pop_dist = Σ(pop_bairro × área_interseção_bairro_distrito / área_bairro)</code></div>
-        <div class="formula"><strong>Crescimento por mil habitantes</strong><code>C1000 = (ΔA / Pop_dist) × 1.000</code></div>
-        <div class="formula"><strong>Índice de pressão</strong><code>IPUS = 0,45×norm(ΔA) + 0,35×norm(%urb2024) + 0,20×norm(C1000)</code></div>
+        <div class="formula"><strong>1. Área urbanizada por distrito</strong><p>Para cada ano, a mancha urbana foi cruzada com o limite de cada distrito. O resultado mede somente a parte da mancha que cai dentro daquele distrito.</p><code>Aurb_dist(ano) = área(distrito ∩ mancha urbana do ano) / 1.000.000</code><p>A divisão por 1.000.000 converte m² para km².</p></div>
+        <div class="formula"><strong>2. Crescimento absoluto</strong><p>Mostra quanto a área urbanizada aumentou entre o início e o fim da série histórica.</p><code>ΔA = Aurb_dist(2024) - Aurb_dist(1977)</code><p>Valores maiores indicam distritos que receberam mais expansão territorial em km².</p></div>
+        <div class="formula"><strong>3. Percentual urbanizado</strong><p>Indica quanto do distrito já estava ocupado pela mancha urbana em cada ano. Ajuda a separar distritos em expansão daqueles já consolidados.</p><code>%urb = (Aurb_dist / área_total_distrito) × 100</code><p>Um distrito pequeno pode ter pouco crescimento em km², mas percentual urbanizado muito alto.</p></div>
+        <div class="formula"><strong>4. População aproximada</strong><p>A população foi aproximada pela sobreposição entre bairros e distritos. Quando um bairro atravessa mais de um distrito, sua população é distribuída proporcionalmente pela área de interseção.</p><code>Pop_dist = Σ(pop_bairro × área(bairro ∩ distrito) / área_bairro)</code><p>É uma estimativa espacial, útil para comparação exploratória.</p></div>
+        <div class="formula"><strong>5. Crescimento por mil habitantes</strong><p>Relaciona expansão urbana e população aproximada. O objetivo é comparar pressão territorial em distritos com tamanhos populacionais diferentes.</p><code>C1000 = (ΔA / Pop_dist) × 1.000</code><p>O resultado expressa km² de crescimento urbano para cada mil habitantes aproximados.</p></div>
+        <div class="formula"><strong>6. Normalização</strong><p>Antes de combinar indicadores com unidades diferentes, cada variável é transformada para escala comum de 0 a 100.</p><code>norm(x) = ((x - xmin) / (xmax - xmin)) × 100</code><p>Assim, km², percentual e crescimento por habitante podem entrar no mesmo índice.</p></div>
+        <div class="formula"><strong>7. Índice de pressão urbana</strong><p>O índice dá maior peso ao crescimento absoluto, depois ao percentual urbanizado e, por fim, ao crescimento relativo à população.</p><code>IPUS = 0,45×norm(ΔA) + 0,35×norm(%urb2024) + 0,20×norm(C1000)</code><p>Quanto mais próximo de 100, maior a pressão territorial potencial sobre o distrito.</p></div>
+        <div class="formula"><strong>8. Interpretação estatística</strong><p>O índice não mede capacidade da rede, vazão, ligações ativas ou cobertura oficial. Ele organiza evidências territoriais para orientar leitura de planejamento.</p><code>pressão maior = crescimento maior + ocupação maior + demanda populacional relativa maior</code><p>Por isso, deve ser lido como indicador exploratório, não como laudo operacional.</p></div>
+        <div class="formula"><strong>9. Recorte temporal</strong><p>A comparação principal usa 1977 como marco histórico inicial e 2024 como situação mais recente. O ano 2002/2003 funciona como ponto intermediário para observar ritmo de evolução.</p><code>período total = 2024 - 1977 = 47 anos</code><p>Esse recorte permite enxergar a mudança acumulada da urbanização.</p></div>
       </div></div></div>
     </div>
 
     <div id="tab-glossario" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Glossário</h2><p class="panel-note">Termos usados na leitura de pressão urbana sobre saneamento.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Glossário</h2><p class="panel-note">Nesta aba o leitor encontra os principais conceitos usados no painel, para interpretar os gráficos sem depender de conhecimento prévio em geoprocessamento ou saneamento.</p></div>
       <div class="plot-wrap"><div class="info-grid">
         <article class="info-card"><h3>Distrito de saneamento</h3><p>Unidade territorial associada ao planejamento e operação de serviços de saneamento.</p></article>
         <article class="info-card"><h3>Pressão urbana</h3><p>Síntese da intensidade de crescimento urbano e do grau de ocupação de uma área.</p></article>
@@ -211,11 +219,17 @@ tbody tr:nth-child(5n + 5) { background: rgba(231, 222, 247, .42); }
         <article class="info-card"><h3>Expansão recente</h3><p>Aumento expressivo da mancha urbana entre os recortes históricos analisados.</p></article>
         <article class="info-card"><h3>Normalização</h3><p>Transformação dos indicadores para escala comum de 0 a 100 antes de combiná-los.</p></article>
         <article class="info-card"><h3>Estimativa por interseção</h3><p>Distribuição aproximada de população e domicílios por proporção de área dos bairros dentro de cada distrito.</p></article>
+        <article class="info-card"><h3>Mancha urbana</h3><p>Conjunto de polígonos que representa áreas ocupadas por usos urbanos em determinado ano.</p></article>
+        <article class="info-card"><h3>Crescimento absoluto</h3><p>Diferença em km² entre a área urbanizada de 2024 e a área urbanizada de 1977 no mesmo distrito.</p></article>
+        <article class="info-card"><h3>Percentual urbanizado</h3><p>Proporção da área total do distrito ocupada pela mancha urbana em cada recorte temporal.</p></article>
+        <article class="info-card"><h3>Crescimento por mil habitantes</h3><p>Indicador que relaciona expansão territorial e população aproximada, permitindo comparar distritos de tamanhos diferentes.</p></article>
+        <article class="info-card"><h3>Pressão potencial</h3><p>Leitura exploratória que aponta onde o crescimento urbano pode exigir maior atenção de infraestrutura, sem medir capacidade operacional da rede.</p></article>
+        <article class="info-card"><h3>EPSG:31982</h3><p>Sistema SIRGAS 2000 / UTM zona 22S, usado porque trabalha em metros e permite calcular áreas com consistência.</p></article>
       </div></div></div>
     </div>
 
     <div id="tab-tabela" class="tab-panel">
-      <div class="panel"><div class="panel-head"><h2 class="panel-title">Tabela síntese por distrito</h2><p class="panel-note">Tabela final com crescimento, percentual urbanizado, população aproximada e índice de pressão.</p></div>
+      <div class="panel"><div class="panel-head"><h2 class="panel-title">Tabela síntese por distrito</h2><p class="panel-note">Nesta aba estão os números finais do painel em formato tabular, útil para conferência, citação em relatório e comparação rápida entre distritos.</p></div>
       <div class="plot-wrap table-wrap"><table id="summaryTable"></table></div></div>
     </div>
   </section>
@@ -226,15 +240,16 @@ tbody tr:nth-child(5n + 5) { background: rgba(231, 222, 247, .42); }
       <div class="footer-card"><strong>Autoria</strong><p>Caetano Ronan - UFSC.</p></div>
       <div class="footer-card"><strong>Fontes</strong><p>`sau_dist_san.zip`, manchas urbanas de 1977, 2002/2003 e 2024, e camada `gvw_bairros`.</p></div>
       <div class="footer-card"><strong>Processamento</strong><p>SIRGAS 2000 / UTM zona 22S, EPSG:31982. Interseções espaciais, áreas em km², normalização e índice composto.</p></div>
-      <div class="footer-card"><strong>Leitura crítica</strong><p>O índice indica pressão potencial. Para diagnóstico operacional, seria necessário incorporar rede, cobertura e capacidade do sistema.</p></div>
+      <div class="footer-card"><strong>Complemento técnico</strong><p>As inspeções sanitárias foram separadas em painel próprio para preservar a leitura deste produto.</p></div>
     </div>
   </footer>
 </main>
 <script>
-const data = {"records": [{"distrito_saneamento": "Distrito Norte", "area_km2": 157.6206, "urb1977_km2": 10.5782, "urb2002_2003_km2": 28.6729, "urb2024_km2": 44.4659, "crescimento_1977_2024_km2": 33.8877, "pct_urb_1977": 6.7112, "pct_urb_2002_2003": 18.1911, "pct_urb_2024": 28.2107, "pop_estimada_aprox": 149643.959, "dom_estima_aprox": 91868.321, "densidade_aprox_hab_km2": 949.3934, "crescimento_por_1000_hab_km2": 0.2265, "bairros_relevantes": "Saco Grande, Moçambique, Rio Vermelho, Cachoeira do Bom Jesus, Ponta das Canas, Praia Brava, Vargem do Bom Jesus, Vargem Grande, Canasvieiras, Daniela, Jurerê, Praia do Forte", "indice_pressao_urbana_saneamento": 70.1398}, {"distrito_saneamento": "Distrito Sul", "area_km2": 140.2397, "urb1977_km2": 9.1557, "urb2002_2003_km2": 19.8615, "urb2024_km2": 32.6624, "crescimento_1977_2024_km2": 23.5067, "pct_urb_1977": 6.5286, "pct_urb_2002_2003": 14.1626, "pct_urb_2024": 23.2904, "pop_estimada_aprox": 113711.1094, "dom_estima_aprox": 56387.4263, "densidade_aprox_hab_km2": 810.8339, "crescimento_por_1000_hab_km2": 0.2067, "bairros_relevantes": "Carvoeira, Costeira do Pirajubaé, Saco dos Limões, Tapera da Base, Campeche, Morro das Pedras, Rio Tavares, Armação, Pântano do Sul, Alto Ribeirão, Ribeirão da Ilha, Carianos", "indice_pressao_urbana_saneamento": 52.4177}, {"distrito_saneamento": "Distrito Continente", "area_km2": 11.7751, "urb1977_km2": 11.3822, "urb2002_2003_km2": 11.1781, "urb2024_km2": 11.5868, "crescimento_1977_2024_km2": 0.2046, "pct_urb_1977": 96.6632, "pct_urb_2002_2003": 94.9297, "pct_urb_2024": 98.4004, "pop_estimada_aprox": 91380.7403, "dom_estima_aprox": 42296.8601, "densidade_aprox_hab_km2": 7760.4888, "crescimento_por_1000_hab_km2": 0.0022, "bairros_relevantes": "Abraão, Balneário, Bom Abrigo, Canto, Capoeiras, Coloninha, Coqueiros, Estreito, Itaguaçu, Jardim Atlântico, Monte Cristo, Jardim Capoeiras", "indice_pressao_urbana_saneamento": 35.0}, {"distrito_saneamento": "Distrito Centro", "area_km2": 11.632, "urb1977_km2": 8.6396, "urb2002_2003_km2": 10.0174, "urb2024_km2": 10.0237, "crescimento_1977_2024_km2": 1.3842, "pct_urb_1977": 74.2742, "pct_urb_2002_2003": 86.1194, "pct_urb_2024": 86.1738, "pop_estimada_aprox": 86979.4013, "dom_estima_aprox": 45097.2379, "densidade_aprox_hab_km2": 7477.5976, "crescimento_por_1000_hab_km2": 0.0159, "bairros_relevantes": "Agronômica, Carvoeira, Centro, José Mendes, Trindade", "indice_pressao_urbana_saneamento": 32.5942}, {"distrito_saneamento": "Distrito Leste", "area_km2": 106.6235, "urb1977_km2": 9.5319, "urb2002_2003_km2": 13.9074, "urb2024_km2": 17.1974, "crescimento_1977_2024_km2": 7.6655, "pct_urb_1977": 8.9398, "pct_urb_2002_2003": 13.0435, "pct_urb_2024": 16.1291, "pop_estimada_aprox": 88931.1717, "dom_estima_aprox": 46068.9655, "densidade_aprox_hab_km2": 834.067, "crescimento_por_1000_hab_km2": 0.0862, "bairros_relevantes": "Carvoeira, Córrego Grande, Itacorubi, João Paulo, Monte Verde, Pantanal, Saco Grande, Santa Mônica, Barra da Lagoa, Costa da Lagoa, Lagoa da Conceição, Moçambique", "indice_pressao_urbana_saneamento": 17.4566}], "stats": {"distritos": 5, "maior_pressao": "Distrito Norte", "maior_pressao_indice": 70.13978839226368, "maior_crescimento": "Distrito Norte", "maior_crescimento_valor": 33.88772017657066, "maior_pct": "Distrito Continente", "maior_pct_valor": 98.40043588315352, "crescimento_total": 66.6487031682491, "pop_total_aprox": 530646.3816664915}};
+const data = {"records": [{"distrito_saneamento": "Distrito Norte", "area_km2": 157.6206, "urb1977_km2": 10.5782, "urb2002_2003_km2": 28.6729, "urb2024_km2": 44.4659, "crescimento_1977_2024_km2": 33.8877, "pct_urb_1977": 6.7112, "pct_urb_2002_2003": 18.1911, "pct_urb_2024": 28.2107, "pop_estimada_aprox": 149643.959, "dom_estima_aprox": 91868.321, "densidade_aprox_hab_km2": 949.3934, "crescimento_por_1000_hab_km2": 0.2265, "bairros_relevantes": "Saco Grande, Moçambique, Rio Vermelho, Cachoeira do Bom Jesus, Ponta das Canas, Praia Brava, Vargem do Bom Jesus, Vargem Grande, Canasvieiras, Daniela, Jurerê, Praia do Forte", "inspecoes_total": 24320, "inspecoes_adequadas": 15171, "inspecoes_inadequadas_indicios": 16991, "nao_conectado_rede": 2230, "conectado_parcial_rede": 2457, "tratamento_local_fossa": 5422, "ligacao_pluvial_irregular": 6075, "caixa_gordura_problema": 9428, "pct_inadequadas_indicios": 69.8643, "pct_nao_conectado_rede": 9.1694, "pct_tratamento_local_fossa": 22.2944, "pct_conectado_parcial_rede": 10.1028, "indice_pressao_urbana_saneamento": 70.1398, "indice_prioridade_investimento": 100.0}, {"distrito_saneamento": "Distrito Sul", "area_km2": 140.2397, "urb1977_km2": 9.1557, "urb2002_2003_km2": 19.8615, "urb2024_km2": 32.6624, "crescimento_1977_2024_km2": 23.5067, "pct_urb_1977": 6.5286, "pct_urb_2002_2003": 14.1626, "pct_urb_2024": 23.2904, "pop_estimada_aprox": 113711.1094, "dom_estima_aprox": 56387.4263, "densidade_aprox_hab_km2": 810.8339, "crescimento_por_1000_hab_km2": 0.2067, "bairros_relevantes": "Carvoeira, Costeira do Pirajubaé, Saco dos Limões, Tapera da Base, Campeche, Morro das Pedras, Rio Tavares, Armação, Pântano do Sul, Alto Ribeirão, Ribeirão da Ilha, Carianos", "inspecoes_total": 7531, "inspecoes_adequadas": 2300, "inspecoes_inadequadas_indicios": 2887, "nao_conectado_rede": 630, "conectado_parcial_rede": 786, "tratamento_local_fossa": 388, "ligacao_pluvial_irregular": 761, "caixa_gordura_problema": 2111, "pct_inadequadas_indicios": 38.3349, "pct_nao_conectado_rede": 8.3654, "pct_tratamento_local_fossa": 5.152, "pct_conectado_parcial_rede": 10.4369, "indice_pressao_urbana_saneamento": 52.4177, "indice_prioridade_investimento": 24.2623}, {"distrito_saneamento": "Distrito Continente", "area_km2": 11.7751, "urb1977_km2": 11.3822, "urb2002_2003_km2": 11.1781, "urb2024_km2": 11.5868, "crescimento_1977_2024_km2": 0.2046, "pct_urb_1977": 96.6632, "pct_urb_2002_2003": 94.9297, "pct_urb_2024": 98.4004, "pop_estimada_aprox": 91380.7403, "dom_estima_aprox": 42296.8601, "densidade_aprox_hab_km2": 7760.4888, "crescimento_por_1000_hab_km2": 0.0022, "bairros_relevantes": "Abraão, Balneário, Bom Abrigo, Canto, Capoeiras, Coloninha, Coqueiros, Estreito, Itaguaçu, Jardim Atlântico, Monte Cristo, Jardim Capoeiras", "inspecoes_total": 13044, "inspecoes_adequadas": 6709, "inspecoes_inadequadas_indicios": 7343, "nao_conectado_rede": 1332, "conectado_parcial_rede": 2200, "tratamento_local_fossa": 408, "ligacao_pluvial_irregular": 1918, "caixa_gordura_problema": 5485, "pct_inadequadas_indicios": 56.2941, "pct_nao_conectado_rede": 10.2116, "pct_tratamento_local_fossa": 3.1279, "pct_conectado_parcial_rede": 16.866, "indice_pressao_urbana_saneamento": 35.0, "indice_prioridade_investimento": 29.4397}, {"distrito_saneamento": "Distrito Centro", "area_km2": 11.632, "urb1977_km2": 8.6396, "urb2002_2003_km2": 10.0174, "urb2024_km2": 10.0237, "crescimento_1977_2024_km2": 1.3842, "pct_urb_1977": 74.2742, "pct_urb_2002_2003": 86.1194, "pct_urb_2024": 86.1738, "pop_estimada_aprox": 86979.4013, "dom_estima_aprox": 45097.2379, "densidade_aprox_hab_km2": 7477.5976, "crescimento_por_1000_hab_km2": 0.0159, "bairros_relevantes": "Agronômica, Carvoeira, Centro, José Mendes, Trindade", "inspecoes_total": 5312, "inspecoes_adequadas": 3512, "inspecoes_inadequadas_indicios": 4358, "nao_conectado_rede": 648, "conectado_parcial_rede": 989, "tratamento_local_fossa": 113, "ligacao_pluvial_irregular": 1073, "caixa_gordura_problema": 2771, "pct_inadequadas_indicios": 82.0407, "pct_nao_conectado_rede": 12.1988, "pct_tratamento_local_fossa": 2.1273, "pct_conectado_parcial_rede": 18.6182, "indice_pressao_urbana_saneamento": 32.5942, "indice_prioridade_investimento": 12.8891}, {"distrito_saneamento": "Distrito Leste", "area_km2": 106.6235, "urb1977_km2": 9.5319, "urb2002_2003_km2": 13.9074, "urb2024_km2": 17.1974, "crescimento_1977_2024_km2": 7.6655, "pct_urb_1977": 8.9398, "pct_urb_2002_2003": 13.0435, "pct_urb_2024": 16.1291, "pop_estimada_aprox": 88931.1717, "dom_estima_aprox": 46068.9655, "densidade_aprox_hab_km2": 834.067, "crescimento_por_1000_hab_km2": 0.0862, "bairros_relevantes": "Carvoeira, Córrego Grande, Itacorubi, João Paulo, Monte Verde, Pantanal, Saco Grande, Santa Mônica, Barra da Lagoa, Costa da Lagoa, Lagoa da Conceição, Moçambique", "inspecoes_total": 14817, "inspecoes_adequadas": 7709, "inspecoes_inadequadas_indicios": 6919, "nao_conectado_rede": 886, "conectado_parcial_rede": 1506, "tratamento_local_fossa": 911, "ligacao_pluvial_irregular": 1577, "caixa_gordura_problema": 5287, "pct_inadequadas_indicios": 46.6964, "pct_nao_conectado_rede": 5.9796, "pct_tratamento_local_fossa": 6.1483, "pct_conectado_parcial_rede": 10.164, "indice_pressao_urbana_saneamento": 17.4566, "indice_prioridade_investimento": 13.3531}], "stats": {"distritos": 5, "maior_pressao": "Distrito Norte", "maior_pressao_indice": 70.13978839226368, "maior_crescimento": "Distrito Norte", "maior_crescimento_valor": 33.88772017657066, "maior_pct": "Distrito Continente", "maior_pct_valor": 98.40043588315352, "crescimento_total": 66.6487031682491, "pop_total_aprox": 530646.3816664915, "inspecoes_total": 65024, "nao_conectado_total": 5726, "tratamento_local_total": 7242, "maior_prioridade": "Distrito Norte", "maior_prioridade_indice": 100.0, "inspecoes_data_inicio": "21/03/2011", "inspecoes_data_fim": "25/01/2025", "categorias_imoveis": "Unifamiliar (24.832); Sem classificação (20.449); Multifamiliar (12.405); Comercial (4.068)", "programas_inspecao": "FSLNR (16.018); Trato pela Lagoa (4.283); SANEAR (3.752); TPC (1.684); Trato pela Costa Norte (189)"}, "scope": {"anos": [{"ano": 2011, "registros": 1}, {"ano": 2012, "registros": 1}, {"ano": 2013, "registros": 365}, {"ano": 2014, "registros": 2164}, {"ano": 2015, "registros": 1767}, {"ano": 2016, "registros": 3360}, {"ano": 2017, "registros": 603}, {"ano": 2018, "registros": 671}, {"ano": 2019, "registros": 2174}, {"ano": 2020, "registros": 7582}, {"ano": 2021, "registros": 9302}, {"ano": 2022, "registros": 13421}, {"ano": 2023, "registros": 17869}, {"ano": 2024, "registros": 5386}, {"ano": 2025, "registros": 1}], "categorias": [{"categoria": "Unifamiliar", "registros": 24832}, {"categoria": "Sem classificação", "registros": 20449}, {"categoria": "Multifamiliar", "registros": 12405}, {"categoria": "Comercial", "registros": 4068}], "programas": [{"programa": "FSLNR", "registros": 16018}, {"programa": "Trato pela Lagoa", "registros": 4283}, {"programa": "SANEAR", "registros": 3752}, {"programa": "TPC", "registros": 1684}, {"programa": "Trato pela Costa Norte", "registros": 189}]}};
 const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
 const cssVar = name => getComputedStyle(document.body).getPropertyValue(name).trim();
-const pastel = ['#94aee6', '#88c9df', '#75b7a8', '#b6d98b', '#e8cf75'];
+const pastel = ['#c7b7e8', '#e7a9b2', '#f2b8a0', '#9eb5df', '#d4a4cf', '#b9bfdc'];
+const barLine = { color: 'rgba(16,35,31,.28)', width: 1 };
 const chartConfig = name => ({
   responsive: true,
   displayModeBar: true,
@@ -242,22 +257,68 @@ const chartConfig = name => ({
   toImageButtonOptions: { format: 'png', filename: name, height: 900, width: 1400, scale: 2 }
 });
 const layout = extra => ({
-  paper_bgcolor: 'rgba(0,0,0,0)',
-  plot_bgcolor: 'rgba(0,0,0,0)',
-  font: { family: 'Arial, sans-serif', color: cssVar('--ink') },
+  paper_bgcolor: '#ffffff',
+  plot_bgcolor: '#ffffff',
+  font: { family: 'Arial, sans-serif', color: '#10231f' },
   margin: { l: 150, r: 80, t: 48, b: 86 },
+  xaxis: {
+    color: '#10231f',
+    gridcolor: '#e6e0d8',
+    zerolinecolor: '#cfc6bb',
+    linecolor: '#b8aca0',
+    tickfont: { color: '#10231f' },
+    titlefont: { color: '#10231f' }
+  },
+  yaxis: {
+    color: '#10231f',
+    gridcolor: '#e6e0d8',
+    zerolinecolor: '#cfc6bb',
+    linecolor: '#b8aca0',
+    tickfont: { color: '#10231f' },
+    titlefont: { color: '#10231f' }
+  },
+  legend: { font: { color: '#10231f' } },
   ...extra
 });
 function orderedRows() {
   return [...data.records].sort((a, b) => b.indice_pressao_urbana_saneamento - a.indice_pressao_urbana_saneamento);
 }
+function pinClickLabel(chartId, formatter) {
+  const chart = document.getElementById(chartId);
+  if (!chart || chart.dataset.pinClickReady) return;
+  chart.dataset.pinClickReady = 'true';
+  chart.on('plotly_click', event => {
+    const point = event.points && event.points[0];
+    if (!point) return;
+    const annotations = [...((chart.layout && chart.layout.annotations) || [])];
+    annotations.push({
+      x: point.x,
+      y: point.y,
+      xref: 'x',
+      yref: 'y',
+      text: formatter(point),
+      showarrow: true,
+      arrowhead: 2,
+      ax: 42,
+      ay: -36,
+      align: 'left',
+      bgcolor: '#ffffff',
+      bordercolor: '#b8aca0',
+      borderwidth: 1,
+      borderpad: 8,
+      font: { color: '#10231f', size: 13 }
+    });
+    Plotly.relayout(chart, { annotations: annotations.slice(-6) });
+  });
+  chart.on('plotly_doubleclick', () => Plotly.relayout(chart, { annotations: [] }));
+}
 function renderCharts() {
   const rows = orderedRows().reverse();
   const districts = rows.map(d => d.distrito_saneamento);
   Plotly.newPlot('evolucaoChart', [
-    { type: 'bar', name: '1977', x: rows.map(d => d.urb1977_km2), y: districts, orientation: 'h', marker: { color: '#e8cf75' }, text: rows.map(d => `${fmt.format(d.urb1977_km2)} km²`), textposition: 'outside', cliponaxis: false },
-    { type: 'bar', name: '2002/2003', x: rows.map(d => d.urb2002_2003_km2), y: districts, orientation: 'h', marker: { color: '#88c9df' }, text: rows.map(d => `${fmt.format(d.urb2002_2003_km2)} km²`), textposition: 'outside', cliponaxis: false },
-    { type: 'bar', name: '2024', x: rows.map(d => d.urb2024_km2), y: districts, orientation: 'h', marker: { color: '#75b7a8' }, text: rows.map(d => `${fmt.format(d.urb2024_km2)} km²`), textposition: 'outside', cliponaxis: false }
+    { type: 'bar', name: '1977', x: rows.map(d => d.urb1977_km2), y: districts, orientation: 'h', marker: { color: '#c7b7e8', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.urb1977_km2)} km²`), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: '2002/2003', x: rows.map(d => d.urb2002_2003_km2), y: districts, orientation: 'h', marker: { color: '#e7a9b2', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.urb2002_2003_km2)} km²`), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: '2024', x: rows.map(d => d.urb2024_km2), y: districts, orientation: 'h', marker: { color: '#9eb5df', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.urb2024_km2)} km²`), textposition: 'outside', cliponaxis: false }
   ], layout({ barmode: 'group', xaxis: { title: 'Área urbanizada (km²)', gridcolor: cssVar('--grid') }, yaxis: { automargin: true }, legend: { orientation: 'h', y: 1.14 } }), chartConfig('evolucao_urbana_distritos_saneamento'));
 
   Plotly.newPlot('pressaoChart', [{
@@ -265,18 +326,20 @@ function renderCharts() {
     x: rows.map(d => d.indice_pressao_urbana_saneamento),
     y: districts,
     orientation: 'h',
-    marker: { color: rows.map((d, i) => pastel[i % pastel.length]) },
+    marker: { color: rows.map((d, i) => pastel[i % pastel.length]), line: barLine },
+    opacity: .94,
     text: rows.map(d => `${fmt.format(d.indice_pressao_urbana_saneamento)}`),
     textposition: 'outside',
     cliponaxis: false,
     customdata: rows.map(d => [d.crescimento_1977_2024_km2, d.pct_urb_2024, d.crescimento_por_1000_hab_km2]),
     hovertemplate: '<b>%{y}</b><br>Índice: %{x:.2f}<br>Crescimento: %{customdata[0]:.2f} km²<br>% urbano 2024: %{customdata[1]:.1f}%<br>km²/mil hab.: %{customdata[2]:.3f}<extra></extra>'
   }], layout({ xaxis: { title: 'Índice de pressão urbana sobre saneamento (0-100)', gridcolor: cssVar('--grid'), range: [0, 112] }, yaxis: { automargin: true } }), chartConfig('indice_pressao_urbana_saneamento'));
+  pinClickLabel('pressaoChart', point => `<b>${point.y}</b><br>Índice: ${fmt.format(point.x)}<br>Cresc.: ${fmt.format(point.customdata[0])} km²<br>Urb. 2024: ${fmt.format(point.customdata[1])}%<br>km²/mil hab.: ${fmt.format(point.customdata[2])}`);
 
   Plotly.newPlot('percentualChart', [
-    { type: 'bar', name: '1977', x: districts, y: rows.map(d => d.pct_urb_1977), marker: { color: '#e8cf75' }, text: rows.map(d => `${fmt.format(d.pct_urb_1977)}%`), textposition: 'outside', cliponaxis: false },
-    { type: 'bar', name: '2002/2003', x: districts, y: rows.map(d => d.pct_urb_2002_2003), marker: { color: '#88c9df' }, text: rows.map(d => `${fmt.format(d.pct_urb_2002_2003)}%`), textposition: 'outside', cliponaxis: false },
-    { type: 'bar', name: '2024', x: districts, y: rows.map(d => d.pct_urb_2024), marker: { color: '#75b7a8' }, text: rows.map(d => `${fmt.format(d.pct_urb_2024)}%`), textposition: 'outside', cliponaxis: false }
+    { type: 'bar', name: '1977', x: districts, y: rows.map(d => d.pct_urb_1977), marker: { color: '#c7b7e8', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.pct_urb_1977)}%`), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: '2002/2003', x: districts, y: rows.map(d => d.pct_urb_2002_2003), marker: { color: '#e7a9b2', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.pct_urb_2002_2003)}%`), textposition: 'outside', cliponaxis: false },
+    { type: 'bar', name: '2024', x: districts, y: rows.map(d => d.pct_urb_2024), marker: { color: '#9eb5df', line: barLine }, opacity: .93, text: rows.map(d => `${fmt.format(d.pct_urb_2024)}%`), textposition: 'outside', cliponaxis: false }
   ], layout({ margin: { l: 80, r: 50, t: 48, b: 110 }, xaxis: { tickangle: -12, gridcolor: cssVar('--grid') }, yaxis: { title: '% urbanizado', gridcolor: cssVar('--grid'), range: [0, 112] }, legend: { orientation: 'h', y: 1.14 } }), chartConfig('percentual_urbanizado_distritos_saneamento'));
 }
 function renderTable() {
