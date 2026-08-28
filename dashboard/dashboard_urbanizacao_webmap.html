@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard de Urbanização - Florianópolis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="urbanizacao_webmap_data.js"></script>
+<style>
+:root {
+  --bg: #f6f2ec;
+  --panel: #ffffff;
+  --ink: #10231f;
+  --muted: #56665f;
+  --grid: #ded8cf;
+  --border: #d8cec2;
+  --control: #fbf8f2;
+  --shadow: rgba(72, 58, 44, .10);
+  --teal: #2f8077;
+  --orange: #c87549;
+  --blue: #6f88b7;
+  --red: #d07a78;
+  --gold: #d8ae35;
+  --tab-ink: #253832;
+  --hero-bg: linear-gradient(135deg, #c8eee8 0%, #c7dcf5 55%, #e7d8f0 100%);
+  --metric-a: linear-gradient(135deg, #d8f3ef 0%, #edf8f6 100%);
+  --metric-b: linear-gradient(135deg, #d9e9fb 0%, #f0f6ff 100%);
+  --metric-c: linear-gradient(135deg, #d7f0fa 0%, #eefaff 100%);
+  --metric-d: linear-gradient(135deg, #dff3e3 0%, #f2fbf4 100%);
+  --metric-e: linear-gradient(135deg, #e7def7 0%, #f8f3ff 100%);
+}
+body[data-theme="dark"] {
+  --bg: #121817;
+  --panel: #1b2422;
+  --ink: #eef7f3;
+  --muted: #b6c6bf;
+  --grid: #34423d;
+  --border: #3d4d47;
+  --control: #22302c;
+  --shadow: rgba(0, 0, 0, .34);
+  --teal: #84d8cc;
+  --orange: #f0ae7e;
+  --blue: #a7bceb;
+  --red: #efa09d;
+  --gold: #efcf6a;
+  --tab-ink: #eef7f3;
+  --hero-bg: linear-gradient(135deg, #183a38 0%, #1b3552 58%, #2d2742 100%);
+  --metric-a: linear-gradient(135deg, #1d3d3a 0%, #1b2c2a 100%);
+  --metric-b: linear-gradient(135deg, #20344d 0%, #1b2530 100%);
+  --metric-c: linear-gradient(135deg, #1c3b48 0%, #1a2a31 100%);
+  --metric-d: linear-gradient(135deg, #213c2a 0%, #1b2a20 100%);
+  --metric-e: linear-gradient(135deg, #302a49 0%, #252033 100%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--ink); }
+main {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 34px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 22px;
+  background: var(--hero-bg);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 32px;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+h1 { margin: 0; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.05; letter-spacing: 0; }
+.lead { margin: 12px 0 0; color: var(--muted); font-size: 22px; line-height: 1.45; max-width: 1040px; }
+.header-actions { display: flex; align-items: end; gap: 16px; flex-shrink: 0; }
+button { font: inherit; }
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 15px 22px;
+  white-space: nowrap;
+  font-size: 19px;
+  text-decoration: none;
+  display: inline-block;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.metric {
+  padding: 22px;
+  min-height: 178px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+.metric-a { background: var(--metric-a); }
+.metric-b { background: var(--metric-b); }
+.metric-c { background: var(--metric-c); }
+.metric-d { background: var(--metric-d); }
+.metric-e { background: var(--metric-e); }
+.metric span { display: block; color: var(--muted); font-size: 17px; margin-bottom: 10px; }
+.metric strong { display: block; font-size: 34px; line-height: 1.08; }
+.metric small {
+  display: block;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.38;
+  margin-top: 12px;
+}
+.panel {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 22px;
+  margin: 20px 24px 0;
+  padding: 18px;
+  background: rgba(242, 235, 140, .36);
+  border: 1px solid rgba(166, 153, 73, .18);
+  border-radius: 12px;
+}
+.panel-title { margin: 0; font-size: 36px; line-height: 1.12; letter-spacing: 0; }
+.panel-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 20px;
+}
+#map {
+  width: 100%;
+  min-height: 650px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.map-shell {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.north-arrow {
+  position: absolute;
+  left: 18px;
+  top: 92px;
+  z-index: 600;
+  width: 54px;
+  height: 68px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  color: #10231f;
+  background: rgba(255, 255, 255, .90);
+  border: 1px solid rgba(16, 35, 31, .16);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+  font-weight: 800;
+}
+.north-arrow::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-bottom: 34px solid #10231f;
+}
+.map-export-btn {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  z-index: 600;
+  border: 1px solid rgba(16, 35, 31, .16);
+  background: rgba(255, 255, 255, .92);
+  color: #10231f;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 10px 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+}
+.map-credit {
+  background: var(--control);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.42;
+  padding: 10px 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .10);
+}
+.numeric-scale {
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(16, 35, 31, .16);
+  border-radius: 8px;
+  color: #10231f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .12);
+}
+.leaflet-bottom.leaflet-left {
+  bottom: 12px;
+}
+.map-shell.exporting .map-export-btn {
+  display: none;
+}
+.chart {
+  width: 100%;
+  min-height: 650px;
+}
+.chart.tall {
+  min-height: 650px;
+}
+.tabs {
+  display: grid;
+  gap: 12px;
+}
+.tab-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  padding: 8px 0 12px;
+}
+.tab-button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--tab-ink);
+  line-height: 1.2;
+  text-align: center;
+  font-size: 15px;
+  box-shadow: 0 6px 16px var(--shadow);
+}
+.tab-button:nth-child(5n + 1) { background: var(--metric-a); }
+.tab-button:nth-child(5n + 2) { background: var(--metric-b); }
+.tab-button:nth-child(5n + 3) { background: var(--metric-c); }
+.tab-button:nth-child(5n + 4) { background: var(--metric-d); }
+.tab-button:nth-child(5n + 5) { background: var(--metric-e); }
+.tab-button.active {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+}
+body[data-theme="dark"] .tab-button.active { color: #10231f; }
+.tab-panels {
+  display: block;
+}
+.tab-panel {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+.tab-panel.active {
+  height: auto;
+  overflow: visible;
+  pointer-events: auto;
+  visibility: visible;
+}
+.plot-wrap {
+  margin: 20px 24px 24px;
+  padding: 18px;
+  background: rgba(242, 235, 140, .36);
+  border: 1px solid rgba(166, 153, 73, .18);
+  border-radius: 12px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.45;
+  color: #10231f;
+}
+.popup-title {
+  font-weight: 760;
+  margin-bottom: 4px;
+}
+body[data-theme="dark"] .leaflet-tile {
+  filter: brightness(.72) contrast(1.12) saturate(.82);
+}
+body[data-theme="dark"] .leaflet-control,
+body[data-theme="dark"] .leaflet-control-layers {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--border);
+}
+.footnote {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 20px 0 0;
+}
+.footer {
+  margin: 28px 0 0;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--control);
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.info-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px var(--shadow);
+  padding: 22px;
+}
+.info-card:nth-child(5n + 1) { background: var(--metric-a); }
+.info-card:nth-child(5n + 2) { background: var(--metric-b); }
+.info-card:nth-child(5n + 3) { background: var(--metric-c); }
+.info-card:nth-child(5n + 4) { background: var(--metric-d); }
+.info-card:nth-child(5n + 5) { background: var(--metric-e); }
+.info-card h2,
+.info-card h3 {
+  margin: 0 0 12px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+.info-card h2 { font-size: 28px; }
+.info-card h3 { font-size: 22px; }
+.info-card p,
+.info-card li {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.info-card p { margin: 0 0 12px; }
+.info-card ul { margin: 0; padding-left: 20px; }
+.method-card {
+  grid-column: 1 / -1;
+}
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.formula {
+  background: var(--control);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.formula:nth-child(5n + 1) { background: var(--metric-a); }
+.formula:nth-child(5n + 2) { background: var(--metric-b); }
+.formula:nth-child(5n + 3) { background: var(--metric-c); }
+.formula:nth-child(5n + 4) { background: var(--metric-d); }
+.formula:nth-child(5n + 5) { background: var(--metric-e); }
+.formula strong {
+  display: block;
+  margin-bottom: 8px;
+}
+.formula code {
+  color: var(--ink);
+  font-size: 15px;
+  white-space: normal;
+}
+@media (max-width: 980px) {
+  main { padding: 20px; }
+  header, .panel-head, .header-actions { flex-direction: column; align-items: stretch; }
+  .metrics, .info-grid, .formula-grid { grid-template-columns: 1fr; }
+  .tab-list { grid-template-columns: 1fr; }
+  .panel-head, .plot-wrap { margin: 18px; padding: 12px; }
+  #map, .chart, .chart.tall { min-height: 520px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Painel dinâmico da urbanização</h1>
+      <p class="lead">Florianópolis - expansão urbana entre 1977, 2002/2003 e 2024, com webmap, taxas, rankings por bairro e síntese regional.</p>
+    </div>
+    <div class="header-actions">
+      <a class="theme-toggle" href="webmap_manchas_urbanas.html" target="_blank" rel="noopener">Abrir webmap</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar modo escuro">Modo escuro</button>
+    </div>
+  </header>
+
+  <section class="metrics" id="metrics"></section>
+
+  <section class="tabs" aria-label="Visualizações de urbanização">
+    <div class="tab-list" role="tablist">
+      <button class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="tab-introducao" data-tab="tab-introducao">Introdução</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-metodologia" data-tab="tab-metodologia">Metodologia</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-glossario" data-tab="tab-glossario">Glossário</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-webmap" data-tab="tab-webmap">Webmap das manchas urbanas</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-area" data-tab="tab-area">Evolução da área urbanizada</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-bairros" data-tab="tab-bairros">Bairros com maior crescimento</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-regioes" data-tab="tab-regioes">Crescimento por região administrativa</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-taxas" data-tab="tab-taxas">Taxa média por período</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-percentual" data-tab="tab-percentual">Percentual urbanizado por região</button>
+    </div>
+
+    <div id="tab-introducao" class="tab-panel active" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Introdução</h2>
+            <p class="panel-note">Visão geral do produto, dos dados disponíveis e das leituras que o dashboard permite realizar.</p>
+          </div>
+        </div>
+        <div class="plot-wrap">
+          <div class="info-grid">
+            <article class="info-card">
+              <h2>O que este produto mostra</h2>
+              <p>Este dashboard organiza a expansão urbana de Florianópolis em três recortes temporais: 1977, 2002/2003 e 2024.</p>
+              <p>O objetivo é representar a evolução espacial da mancha urbana e transformar as camadas vetoriais em indicadores comparáveis por bairro e por região administrativa.</p>
+            </article>
+            <article class="info-card">
+              <h3>O que há no painel</h3>
+              <ul>
+                <li>webmap com manchas urbanas sobrepostas;</li>
+                <li>evolução da área urbanizada total;</li>
+                <li>ranking de crescimento por bairro;</li>
+                <li>crescimento agregado por região;</li>
+                <li>taxas médias por período;</li>
+                <li>percentual urbanizado por região.</li>
+              </ul>
+            </article>
+            <article class="info-card">
+              <h3>Como interpretar</h3>
+              <p>Valores em km² indicam crescimento absoluto da área urbana. Valores em % indicam quanto da área de cada região já estava ocupada pela mancha urbana em cada ano.</p>
+              <p>A camada de 2024 foi filtrada para considerar apenas feições classificadas como <code>Urbanizado</code>.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-metodologia" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Metodologia e estatísticas utilizadas</h2>
+            <p class="panel-note">Processamento espacial, filtros aplicados e fórmulas usadas para gerar os indicadores do dashboard.</p>
+          </div>
+        </div>
+        <div class="plot-wrap">
+          <div class="info-grid">
+            <article class="info-card method-card">
+              <h2>Processamento</h2>
+              <p>As camadas foram lidas em SIRGAS 2000 / UTM 22S, sistema métrico adequado para cálculo de áreas. As geometrias foram validadas, dissolvidas por ano e cruzadas com os limites de bairros para estimar a urbanização por unidade territorial.</p>
+              <p>Para 2024, foram consideradas apenas as feições com <code>tipo = Urbanizado</code>, pois a camada também inclui áreas não urbanizadas e corpos d'água.</p>
+            </article>
+            <article class="info-card method-card">
+              <h2>Fórmulas</h2>
+              <div class="formula-grid">
+                <div class="formula">
+                  <strong>Área urbanizada total</strong>
+                  <code>Aurb(ano) = área da união das geometrias urbanas do ano / 1.000.000</code>
+                </div>
+                <div class="formula">
+                  <strong>Área urbanizada por bairro</strong>
+                  <code>Aurb_bairro(ano) = área(interseção bairro ∩ mancha urbana ano) / 1.000.000</code>
+                </div>
+                <div class="formula">
+                  <strong>Crescimento absoluto</strong>
+                  <code>ΔA = Aurb(ano final) - Aurb(ano inicial)</code>
+                </div>
+                <div class="formula">
+                  <strong>Taxa média anual</strong>
+                  <code>Tlinear = ΔA / número de anos do período</code>
+                </div>
+                <div class="formula">
+                  <strong>Taxa composta anual</strong>
+                  <code>TCAC = ((Afinal / Ainicial)^(1 / anos) - 1) × 100</code>
+                </div>
+                <div class="formula">
+                  <strong>Percentual urbanizado</strong>
+                  <code>%urb = (Aurb_unidade / área_total_unidade) × 100</code>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-glossario" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Glossário</h2>
+            <p class="panel-note">Definições rápidas para apoiar a leitura dos mapas, gráficos e estatísticas do dashboard.</p>
+          </div>
+        </div>
+        <div class="plot-wrap">
+          <div class="info-grid">
+            <article class="info-card">
+              <h3>Mancha urbana</h3>
+              <p>Conjunto de polígonos que representa a área ocupada por uso urbano em determinado ano. No painel, aparecem os recortes de 1977, 2002/2003 e 2024.</p>
+            </article>
+            <article class="info-card">
+              <h3>Área urbanizada</h3>
+              <p>Área calculada a partir das geometrias urbanas. Os valores são convertidos de m² para km² para facilitar a comparação territorial.</p>
+            </article>
+            <article class="info-card">
+              <h3>Crescimento absoluto</h3>
+              <p>Diferença entre a área urbanizada final e a área urbanizada inicial. É expressa em km² e mostra quanto a mancha aumentou no período.</p>
+            </article>
+            <article class="info-card">
+              <h3>Crescimento percentual</h3>
+              <p>Variação relativa entre dois anos. Ajuda a comparar unidades com tamanhos diferentes, mas deve ser lida junto com o valor absoluto.</p>
+            </article>
+            <article class="info-card">
+              <h3>Taxa média anual</h3>
+              <p>Média linear do crescimento por ano no intervalo analisado. No painel, indica quantos km² por ano foram incorporados à mancha urbana.</p>
+            </article>
+            <article class="info-card">
+              <h3>Taxa composta anual</h3>
+              <p>Taxa anual equivalente considerando crescimento acumulado no período. É útil para comparar ritmos entre intervalos de duração diferente.</p>
+            </article>
+            <article class="info-card">
+              <h3>Percentual urbanizado</h3>
+              <p>Proporção da área de uma unidade territorial ocupada pela mancha urbana. É calculado dividindo a área urbanizada pela área total da unidade.</p>
+            </article>
+            <article class="info-card">
+              <h3>Interseção espacial</h3>
+              <p>Operação que cruza bairros e manchas urbanas para medir quanto da mancha cai dentro de cada bairro ou região administrativa.</p>
+            </article>
+            <article class="info-card">
+              <h3>Dissolução</h3>
+              <p>Processo de unir várias feições urbanas de um mesmo ano em uma única camada contínua para evitar dupla contagem de áreas sobrepostas.</p>
+            </article>
+            <article class="info-card">
+              <h3>SIRGAS 2000 / UTM 22S</h3>
+              <p>Sistema de referência usado nos dados locais. Por ser projetado em metros, é adequado para calcular áreas e distâncias no município.</p>
+            </article>
+            <article class="info-card">
+              <h3>Bairro</h3>
+              <p>Unidade territorial usada para rankings e comparações locais. A camada `gvw_bairros` também contém população estimada, domicílios e densidade.</p>
+            </article>
+            <article class="info-card">
+              <h3>Região administrativa</h3>
+              <p>Agrupamento territorial dos bairros. No dashboard, permite resumir o crescimento urbano por grandes setores do município.</p>
+            </article>
+            <article class="info-card">
+              <h3>Censo 2022</h3>
+              <p>Camada de setores censitários disponível na pasta do projeto. Pode ser usada para cruzar crescimento urbano com população e densidade.</p>
+            </article>
+            <article class="info-card">
+              <h3>População estimada</h3>
+              <p>Campo presente na camada de bairros. Permite criar indicadores como crescimento urbano por habitante e densidade populacional por bairro.</p>
+            </article>
+            <article class="info-card">
+              <h3>Dado ambiental</h3>
+              <p>Variável física, ecológica ou de infraestrutura ambiental usada para comparação com urbanização, como temperatura, vegetação, relevo, drenagem ou saneamento.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-webmap" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Webmap das manchas urbanas</h2>
+            <p class="panel-note">Mapa interativo iniciado pela camada de crescimento por bairro. As manchas urbanas de 1977, 2002/2003 e 2024 ficam disponíveis no controle de camadas para comparação.</p>
+          </div>
+        </div>
+        <div class="plot-wrap">
+          <div class="map-shell" id="dashboard-map-export">
+            <div id="map"></div>
+            <div class="north-arrow" aria-label="Norte">N</div>
+            <button class="map-export-btn" type="button" data-export-map="dashboard-map-export" data-export-name="webmap_manchas_urbanas_dashboard">Baixar PNG</button>
+            <div class="map-credit">Autor: Caetano Ronan. Fonte: Geoportal de Florianópolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024` e `gvw_bairros`. CRS: SIRGAS 2000 / UTM 22S, EPSG:31982.</div>
+            <div class="legend">
+              <span><i class="swatch" style="background:#e8cf75"></i>Menor crescimento</span>
+              <span><i class="swatch" style="background:#b6d98b"></i>Baixo crescimento</span>
+              <span><i class="swatch" style="background:#75b7a8"></i>Crescimento intermediário</span>
+              <span><i class="swatch" style="background:#88c9df"></i>Alto crescimento</span>
+              <span><i class="swatch" style="background:#94aee6"></i>Maior crescimento</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-area" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Evolução da área urbanizada</h2>
+            <p class="panel-note">Gráfico de evolução da área urbanizada total em Florianópolis. Ele mostra o salto de 49,42 km² em 1977 para 116,29 km² em 2024.</p>
+          </div>
+        </div>
+        <div class="plot-wrap"><div id="areaChart" class="chart tall"></div></div>
+      </div>
+    </div>
+
+    <div id="tab-bairros" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Bairros com maior crescimento</h2>
+            <p class="panel-note">Ranking dos bairros com maior aumento absoluto de área urbanizada. As barras usam tons pastel para facilitar a comparação visual entre bairros.</p>
+          </div>
+        </div>
+        <div class="plot-wrap"><div id="bairroChart" class="chart tall"></div></div>
+      </div>
+    </div>
+
+    <div id="tab-regioes" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Crescimento por região administrativa</h2>
+            <p class="panel-note">Síntese do crescimento por região administrativa. As barras mostram o crescimento em km² e os rótulos indicam o aumento percentual em relação à área urbanizada de 1977.</p>
+          </div>
+        </div>
+        <div class="plot-wrap"><div id="regiaoChart" class="chart tall"></div></div>
+      </div>
+    </div>
+
+    <div id="tab-taxas" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Taxa média por período</h2>
+            <p class="panel-note">Comparação da velocidade média de expansão urbana nos períodos 1977-2002/2003, 2002/2003-2024 e 1977-2024. Os rótulos mostram a taxa composta anual em porcentagem.</p>
+          </div>
+        </div>
+        <div class="plot-wrap"><div id="taxaChart" class="chart tall"></div></div>
+      </div>
+    </div>
+
+    <div id="tab-percentual" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Percentual urbanizado por região</h2>
+            <p class="panel-note">Comparação do percentual urbanizado de cada região administrativa nos três anos analisados. Esta aba mostra quanto da área territorial de cada região já estava ocupada pela mancha urbana.</p>
+          </div>
+        </div>
+        <div class="plot-wrap"><div id="pctChart" class="chart tall"></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="footnote">Nota: o arquivo baixado como mancha_urb2002 contém atributo interno refname=2003; por isso o painel identifica o período intermediário como 2002/2003.</div>
+  <footer class="footer">
+    <strong>Referências e processamento.</strong> Autor: Caetano Ronan. Fontes cartográficas: camadas vetoriais do Geoportal de Florianópolis utilizadas localmente em `dados_brutos/`: `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024` e `gvw_bairros`. Sistema de referência: SIRGAS 2000 / UTM zona 22S, EPSG:31982. Processamento: validação geométrica, dissolução das manchas urbanas por ano, interseção com bairros, agregação por região administrativa e conversão de m² para km². Critério de 2024: apenas feições com `tipo = Urbanizado`. Bibliotecas: GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas e OpenStreetMap como mapa base.
+  </footer>
+</main>
+<script>
+const data = window.URBANIZACAO_FLORIPA;
+const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+const totals = data.totals;
+const area1977 = totals.find(d => d.ano === '1977').area_urb_km2;
+const area2024 = totals.find(d => d.ano === '2024').area_urb_km2;
+const growth = area2024 - area1977;
+const factor = area2024 / area1977;
+const totalRate = data.rates.find(d => d.periodo === '1977 a 2024');
+const area2002 = totals.find(d => d.ano === '2002/2003').area_urb_km2;
+const state = { theme: localStorage.getItem('urbanizacao-theme-floripa') || 'light' };
+const pastelBars = ['#75b7a8', '#f2b479', '#94aee6', '#df8f99', '#b6d98b', '#c9a6e8', '#88c9df', '#e8cf75', '#d79fbd', '#9bd0b4', '#d7b38c', '#b8c7e6'];
+
+document.getElementById('metrics').innerHTML = [
+  ['metric-a', 'Área urbanizada 1977', `${fmt.format(area1977)} km²`, 'Mancha histórica inicial.'],
+  ['metric-b', 'Área urbanizada 2002/2003', `${fmt.format(area2002)} km²`, 'Ano intermediário do Geoportal.'],
+  ['metric-c', 'Área urbanizada 2024', `${fmt.format(area2024)} km²`, 'Apenas registros Urbanizados.'],
+  ['metric-d', 'Crescimento total', `+${fmt.format(growth)} km²`, `${fmt.format(factor)} vezes maior que 1977.`],
+  ['metric-e', 'Média anual', `+${fmt.format(totalRate.media_km2_ano)} km²/ano`, `${fmt.format(totalRate.taxa_composta_anual_pct)}% ao ano.`]
+].map(([klass, label, value, sub]) => `<div class="metric ${klass}"><span>${label}</span><strong>${value}</strong><small>${sub}</small></div>`).join('');
+
+function cssVar(name) { return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function plotLayout(extra = {}) {
+  const dark = state.theme === 'dark';
+  return {
+    margin: { l: 74, r: 34, t: 36, b: 70 },
+    paper_bgcolor: cssVar('--panel'),
+    plot_bgcolor: cssVar('--panel'),
+    font: { family: 'Arial, sans-serif', color: cssVar('--ink') },
+    hoverlabel: { bgcolor: dark ? '#f7fbf9' : '#10231f', font: { color: dark ? '#10231f' : '#ffffff' } },
+    xaxis: { gridcolor: cssVar('--grid'), zerolinecolor: cssVar('--grid') },
+    yaxis: { gridcolor: cssVar('--grid'), zerolinecolor: cssVar('--grid') },
+    ...extra
+  };
+}
+function chartConfig(filename) {
+  return {
+    displayModeBar: true,
+    responsive: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+    toImageButtonOptions: {
+      format: 'png',
+      filename,
+      width: 1400,
+      height: 900,
+      scale: 2
+    }
+  };
+}
+
+function refreshPlotThemes() {
+  ['areaChart', 'bairroChart', 'regiaoChart', 'taxaChart', 'pctChart'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || !el.data) return;
+    Plotly.relayout(el, {
+      paper_bgcolor: cssVar('--panel'),
+      plot_bgcolor: cssVar('--panel'),
+      'font.color': cssVar('--ink'),
+      'xaxis.gridcolor': cssVar('--grid'),
+      'xaxis.zerolinecolor': cssVar('--grid'),
+      'yaxis.gridcolor': cssVar('--grid'),
+      'yaxis.zerolinecolor': cssVar('--grid')
+    });
+  });
+}
+
+function applyTheme(theme) {
+  state.theme = theme;
+  document.body.dataset.theme = theme;
+  document.getElementById('theme-toggle').textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+  localStorage.setItem('urbanizacao-theme-floripa', theme);
+  window.setTimeout(refreshPlotThemes, 60);
+}
+
+applyTheme(state.theme);
+
+Plotly.newPlot('areaChart', [{
+  type: 'scatter',
+  mode: 'lines+markers',
+  x: totals.map(d => d.ano),
+  y: totals.map(d => d.area_urb_km2),
+  line: { color: '#2f7d68', width: 4 },
+  marker: { size: 13, color: ['#9d3c3a', '#d47b36', '#e1bb37'], line: { color: '#13211e', width: 1 } },
+  hovertemplate: '%{x}<br>%{y:.2f} km²<extra></extra>'
+}], plotLayout({ yaxis: { title: 'Área urbanizada (km²)', gridcolor: cssVar('--grid') } }), chartConfig('evolucao_area_urbanizada_florianopolis'));
+
+const topBairros = [...data.bairros].sort((a, b) => b.crescimento_1977_2024_km2 - a.crescimento_1977_2024_km2).slice(0, 12).reverse();
+Plotly.newPlot('bairroChart', [{
+  type: 'bar',
+  orientation: 'h',
+  x: topBairros.map(d => d.crescimento_1977_2024_km2),
+  y: topBairros.map(d => d.bairro),
+  marker: { color: topBairros.map((_, idx) => pastelBars[idx % pastelBars.length]) },
+  hovertemplate: '%{y}<br>+%{x:.2f} km²<extra></extra>'
+}], plotLayout({ xaxis: { title: 'Crescimento (km²)', gridcolor: cssVar('--grid') }, margin: { l: 150, r: 20, t: 36, b: 64 } }), chartConfig('bairros_maior_crescimento_urbano_florianopolis'));
+
+const regioes = [...data.regioes].sort((a, b) => b.crescimento_1977_2024_km2 - a.crescimento_1977_2024_km2);
+const regiaoPctGrowth = regioes.map(d => d.urb1977_km2 > 0 ? 100 * d.crescimento_1977_2024_km2 / d.urb1977_km2 : 0);
+Plotly.newPlot('regiaoChart', [{
+  type: 'bar',
+  x: regioes.map(d => d.regiao_adm.replace('Região ', '')),
+  y: regioes.map(d => d.crescimento_1977_2024_km2),
+  text: regiaoPctGrowth.map(v => `+${fmt.format(v)}%`),
+  textposition: 'outside',
+  cliponaxis: false,
+  customdata: regiaoPctGrowth,
+  marker: { color: regioes.map((_, idx) => pastelBars[idx % pastelBars.length]) },
+  hovertemplate: '%{x}<br>+%{y:.2f} km²<br>+%{customdata:.1f}% sobre 1977<extra></extra>'
+}], plotLayout({ yaxis: { title: 'Crescimento (km²)', gridcolor: cssVar('--grid') } }), chartConfig('crescimento_urbano_por_regiao_florianopolis'));
+
+Plotly.newPlot('taxaChart', [{
+  type: 'bar',
+  x: data.rates.map(d => d.periodo),
+  y: data.rates.map(d => d.media_km2_ano),
+  text: data.rates.map(d => `${fmt.format(d.taxa_composta_anual_pct)}% a.a.`),
+  textposition: 'outside',
+  cliponaxis: false,
+  customdata: data.rates.map(d => d.taxa_composta_anual_pct),
+  marker: { color: ['#df8f99', '#f2b479', '#75b7a8'] },
+  hovertemplate: '%{x}<br>%{y:.2f} km²/ano<br>%{customdata:.2f}% ao ano<extra></extra>'
+}], plotLayout({ yaxis: { title: 'km²/ano', gridcolor: cssVar('--grid') } }), chartConfig('taxa_media_urbanizacao_florianopolis'));
+
+const pctYears = ['1977', '2002/2003', '2024'];
+const pctKeys = ['pct_urb_1977', 'pct_urb_2002', 'pct_urb_2024'];
+const pctRegions = regioes.map(d => d.regiao_adm.replace('Região ', ''));
+const pctColors = ['#9d3c3a', '#d47b36', '#2f8077'];
+Plotly.newPlot('pctChart', pctYears.map((year, idx) => {
+  const values = regioes.map(d => d[pctKeys[idx]]);
+  return {
+    type: 'bar',
+    name: year,
+    x: pctRegions,
+    y: values,
+    text: values.map(v => `${fmt.format(v)}%`),
+    textposition: 'outside',
+    cliponaxis: false,
+    marker: { color: pctColors[idx] },
+    hovertemplate: `%{x}<br>${year}: %{y:.1f}%<extra></extra>`
+  };
+}), plotLayout({
+  barmode: 'group',
+  margin: { l: 78, r: 34, t: 42, b: 92 },
+  xaxis: { gridcolor: cssVar('--grid'), tickangle: -14 },
+  yaxis: { title: '% urbanizado', gridcolor: cssVar('--grid'), range: [0, 108] },
+  legend: { orientation: 'h', y: 1.12 }
+}), chartConfig('percentual_urbanizado_por_regiao_florianopolis'));
+
+const map = L.map('map', {
+  zoomControl: true,
+  preferCanvas: true,
+  minZoom: 10,
+  maxZoom: 16,
+  maxBoundsViscosity: 1.0,
+  zoomAnimation: false,
+  fadeAnimation: false,
+  markerZoomAnimation: false
+}).setView([-27.62, -48.52], 11);
+const osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  crossOrigin: true,
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+const googleSatelliteBase = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+  subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+  maxZoom: 20,
+  crossOrigin: true,
+  attribution: '&copy; Google'
+});
+L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(map);
+
+function addNumericScale(targetMap) {
+  const NumericScale = L.Control.extend({
+    options: { position: 'bottomleft' },
+    onAdd: () => {
+      const container = L.DomUtil.create('div', 'numeric-scale');
+      L.DomEvent.disableClickPropagation(container);
+      function update() {
+        const lat = targetMap.getCenter().lat;
+        const zoom = targetMap.getZoom();
+        const metersPerPixel = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, zoom);
+        const scale = Math.round((metersPerPixel * 96) / 0.0254);
+        container.textContent = `Escala aprox. 1:${scale.toLocaleString('pt-BR')}`;
+      }
+      targetMap.on('zoomend moveend', update);
+      update();
+      return container;
+    }
+  });
+  targetMap.addControl(new NumericScale());
+}
+addNumericScale(map);
+
+function exportMapPng(shellId, filename) {
+  const target = document.getElementById(shellId);
+  target.classList.add('exporting');
+  map.stop();
+  map.invalidateSize();
+  window.setTimeout(() => {
+    html2canvas(target, {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      scale: 2,
+      onclone: clonedDoc => normalizeLeafletForExport(clonedDoc, shellId)
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `${filename}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }).finally(() => target.classList.remove('exporting'));
+  }, 120);
+}
+
+function parseTranslate(value) {
+  if (!value || value === 'none') return { x: 0, y: 0 };
+  const matrix3d = value.match(/^matrix3d\((.+)\)$/);
+  if (matrix3d) {
+    const parts = matrix3d[1].split(',').map(Number);
+    return { x: parts[12] || 0, y: parts[13] || 0 };
+  }
+  const matrix = value.match(/^matrix\((.+)\)$/);
+  if (matrix) {
+    const parts = matrix[1].split(',').map(Number);
+    return { x: parts[4] || 0, y: parts[5] || 0 };
+  }
+  const translate = value.match(/translate(?:3d)?\(([-0-9.]+)px,\s*([-0-9.]+)px/);
+  return translate ? { x: Number(translate[1]) || 0, y: Number(translate[2]) || 0 } : { x: 0, y: 0 };
+}
+
+function flattenLeafletTransform(el, win) {
+  const transform = el.style.transform || win.getComputedStyle(el).transform;
+  const shift = parseTranslate(transform);
+  if (!shift.x && !shift.y) return;
+  const left = parseFloat(el.style.left || 0);
+  const top = parseFloat(el.style.top || 0);
+  el.style.left = `${left + shift.x}px`;
+  el.style.top = `${top + shift.y}px`;
+  el.style.transform = 'none';
+  el.style.transformOrigin = '0 0';
+}
+
+function normalizeLeafletForExport(clonedDoc, shellId) {
+  const shell = clonedDoc.getElementById(shellId);
+  if (!shell) return;
+  const win = clonedDoc.defaultView;
+  shell.querySelectorAll('.leaflet-map-pane, .leaflet-tile-container, .leaflet-overlay-pane svg, .leaflet-tile, .leaflet-zoom-animated').forEach(el => {
+    flattenLeafletTransform(el, win);
+  });
+}
+
+function colorScale(v) {
+  return v > 7 ? '#94aee6' :
+    v > 4 ? '#88c9df' :
+    v > 2 ? '#75b7a8' :
+    v > 1 ? '#b6d98b' :
+    '#e8cf75';
+}
+const bairrosLayer = L.geoJSON(data.geojson.bairros, {
+  style: f => ({
+    color: '#244257',
+    weight: 0.8,
+    fillColor: colorScale(f.properties.crescimento_1977_2024_km2),
+    fillOpacity: 0.54
+  }),
+  onEachFeature: (feature, layer) => {
+    const p = feature.properties;
+    layer.bindPopup(`<div class="popup-title">${p.bairro}</div>
+      Região: ${p.regiao_adm}<br>
+      Cresc. 1977-2024: <b>${fmt.format(p.crescimento_1977_2024_km2)} km²</b><br>
+      Urb. 2024: ${fmt.format(p.urb2024_km2)} km² (${fmt.format(p.pct_urb_2024)}%)`);
+  }
+}).addTo(map);
+
+const style1977 = { color: '#9d3c3a', weight: 1.5, fillColor: '#9d3c3a', fillOpacity: 0.48 };
+const style2002 = { color: '#d47b36', weight: 1.4, fillColor: '#d47b36', fillOpacity: 0.38 };
+const style2024 = { color: '#b79820', weight: 1.2, fillColor: '#e1bb37', fillOpacity: 0.30 };
+const l1977 = L.geoJSON(data.geojson.urb1977, { style: style1977 });
+const l2002 = L.geoJSON(data.geojson.urb2002, { style: style2002 });
+const l2024 = L.geoJSON(data.geojson.urb2024, { style: style2024 });
+const floripaBounds = bairrosLayer.getBounds().pad(0.12);
+map.setMaxBounds(floripaBounds);
+L.control.layers({
+  'OpenStreetMap': osmBase,
+  'Google Satélite': googleSatelliteBase
+}, {
+  'Crescimento por bairro': bairrosLayer,
+  'Mancha urbana 1977': l1977,
+  'Mancha urbana 2002/2003': l2002,
+  'Área urbanizada 2024': l2024
+}, { collapsed: true, position: 'bottomright' }).addTo(map);
+map.fitBounds(bairrosLayer.getBounds(), { padding: [18, 18], maxZoom: 11 });
+document.querySelectorAll('[data-export-map]').forEach(button => {
+  button.addEventListener('click', () => exportMapPng(button.dataset.exportMap, button.dataset.exportName));
+});
+
+document.querySelectorAll('.tab-button').forEach(button => {
+  button.addEventListener('click', () => {
+    const target = button.dataset.tab;
+    document.querySelectorAll('.tab-button').forEach(item => {
+      const active = item === button;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === target);
+    });
+    window.setTimeout(() => {
+      map.invalidateSize();
+      ['areaChart', 'bairroChart', 'regiaoChart', 'taxaChart', 'pctChart'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) Plotly.Plots.resize(el);
+      });
+    }, 80);
+  });
+});
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

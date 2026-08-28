@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Webmap das manchas urbanas - Florianópolis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="urbanizacao_webmap_data.js"></script>
+<style>
+:root {
+  --bg: #f6f2ec;
+  --panel: #ffffff;
+  --ink: #10231f;
+  --muted: #56665f;
+  --border: #d8cec2;
+  --shadow: rgba(72, 58, 44, .10);
+  --hero-bg: linear-gradient(135deg, #c8eee8 0%, #c7dcf5 55%, #e7d8f0 100%);
+}
+body[data-theme="dark"] {
+  --bg: #121817;
+  --panel: #1b2422;
+  --ink: #eef7f3;
+  --muted: #b6c6bf;
+  --border: #3d4d47;
+  --shadow: rgba(0, 0, 0, .34);
+  --hero-bg: linear-gradient(135deg, #183a38 0%, #1b3552 58%, #2d2742 100%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--ink); }
+main { min-height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 18px; gap: 14px; }
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  background: var(--hero-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+.header-copy { max-width: 920px; }
+h1 { margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.08; letter-spacing: 0; }
+p { margin: 7px 0 0; color: var(--muted); font-size: 16px; line-height: 1.45; }
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 13px 18px;
+  white-space: nowrap;
+  font-size: 16px;
+}
+.map-card {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-rows: minmax(560px, 1fr) auto;
+  grid-template-areas:
+    "map side"
+    "credit credit";
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px var(--shadow);
+  padding: 16px;
+}
+#map { grid-area: map; width: 100%; height: 100%; min-height: 560px; border-radius: 10px; overflow: hidden; }
+.north-arrow {
+  position: absolute;
+  left: 34px;
+  top: 108px;
+  z-index: 600;
+  width: 54px;
+  height: 68px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  color: #10231f;
+  background: rgba(255, 255, 255, .90);
+  border: 1px solid rgba(16, 35, 31, .16);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+  font-weight: 800;
+}
+.north-arrow::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-bottom: 34px solid #10231f;
+}
+.map-export-btn {
+  border: 1px solid rgba(16, 35, 31, .16);
+  background: rgba(255, 255, 255, .92);
+  color: #10231f;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 10px 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+  width: 100%;
+}
+.map-credit {
+  grid-area: credit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.42;
+  padding: 10px 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .10);
+}
+.map-card.exporting .map-export-btn { display: none; }
+.leaflet-bottom.leaflet-left { bottom: 12px; }
+.map-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.side-note {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+.side-note strong {
+  display: block;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+}
+.swatch { display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 2px; vertical-align: -1px; }
+.leaflet-popup-content { color: #10231f; line-height: 1.45; }
+.popup-title { font-weight: 760; margin-bottom: 4px; }
+body[data-theme="dark"] .leaflet-tile { filter: brightness(.72) contrast(1.12) saturate(.82); }
+body[data-theme="dark"] .leaflet-control,
+body[data-theme="dark"] .leaflet-control-layers {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--border);
+}
+@media (max-width: 760px) {
+  main { padding: 12px; }
+  header { align-items: stretch; flex-direction: column; }
+  .map-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(480px, 1fr) auto auto;
+    grid-template-areas:
+      "map"
+      "side"
+      "credit";
+    padding: 12px;
+  }
+  #map { min-height: 480px; }
+  .north-arrow { left: 24px; top: 98px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="header-copy">
+      <h1>Webmap das manchas urbanas</h1>
+      <p>Florianópolis - crescimento urbano por bairro, com camadas históricas disponíveis para comparação.</p>
+    </div>
+    <button class="theme-toggle" id="map-theme-toggle" type="button" aria-label="Alternar modo escuro">Modo escuro</button>
+  </header>
+  <section class="map-card">
+    <div id="map"></div>
+    <div class="north-arrow" aria-label="Norte">N</div>
+    <aside class="map-side">
+      <div class="side-note"><strong>Camada inicial</strong>O mapa abre com o crescimento por bairro ativo. As manchas de 1977, 2002/2003 e 2024 ficam disponíveis no controle de camadas.</div>
+      <button class="map-export-btn" type="button" id="export-map-png">Baixar PNG</button>
+      <div class="legend">
+        <div><i class="swatch" style="background:#e8cf75"></i>Menor crescimento</div>
+        <div><i class="swatch" style="background:#b6d98b"></i>Baixo crescimento</div>
+        <div><i class="swatch" style="background:#75b7a8"></i>Crescimento intermediário</div>
+        <div><i class="swatch" style="background:#88c9df"></i>Alto crescimento</div>
+        <div><i class="swatch" style="background:#94aee6"></i>Maior crescimento</div>
+        <div><i class="swatch" style="background:#9d3c3a"></i>Mancha urbana 1977</div>
+        <div><i class="swatch" style="background:#d47b36"></i>Mancha urbana 2002/2003</div>
+        <div><i class="swatch" style="background:#e1bb37"></i>Área urbanizada 2024</div>
+      </div>
+    </aside>
+    <div class="map-credit">Autor: Caetano Ronan. Fonte: Geoportal de Florianópolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024` e `gvw_bairros`. CRS: SIRGAS 2000 / UTM 22S, EPSG:31982.</div>
+  </section>
+</main>
+<script>
+const data = window.URBANIZACAO_FLORIPA;
+const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+const map = L.map('map', {
+  zoomControl: true,
+  preferCanvas: true,
+  minZoom: 10,
+  maxZoom: 16,
+  maxBoundsViscosity: 1.0,
+  zoomAnimation: false,
+  fadeAnimation: false,
+  markerZoomAnimation: false
+}).setView([-27.62, -48.52], 11);
+const osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  crossOrigin: true,
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+const googleSatelliteBase = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+  subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+  maxZoom: 20,
+  crossOrigin: true,
+  attribution: '&copy; Google'
+});
+L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(map);
+function addNumericScale(targetMap) {
+  const NumericScale = L.Control.extend({
+    options: { position: 'bottomleft' },
+    onAdd: () => {
+      const container = L.DomUtil.create('div', 'numeric-scale');
+      container.style.background = 'rgba(255,255,255,.92)';
+      container.style.border = '1px solid rgba(16,35,31,.16)';
+      container.style.borderRadius = '8px';
+      container.style.color = '#10231f';
+      container.style.fontSize = '12px';
+      container.style.fontWeight = '700';
+      container.style.padding = '6px 8px';
+      function update() {
+        const lat = targetMap.getCenter().lat;
+        const zoom = targetMap.getZoom();
+        const metersPerPixel = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, zoom);
+        const scale = Math.round((metersPerPixel * 96) / 0.0254);
+        container.textContent = `Escala aprox. 1:${scale.toLocaleString('pt-BR')}`;
+      }
+      targetMap.on('zoomend moveend', update);
+      update();
+      return container;
+    }
+  });
+  targetMap.addControl(new NumericScale());
+}
+addNumericScale(map);
+function colorScale(v) {
+  return v > 7 ? '#94aee6' :
+    v > 4 ? '#88c9df' :
+    v > 2 ? '#75b7a8' :
+    v > 1 ? '#b6d98b' :
+    '#e8cf75';
+}
+const bairrosLayer = L.geoJSON(data.geojson.bairros, {
+  style: f => ({
+    color: '#244257',
+    weight: 0.8,
+    fillColor: colorScale(f.properties.crescimento_1977_2024_km2),
+    fillOpacity: 0.54
+  }),
+  onEachFeature: (feature, layer) => {
+    const p = feature.properties;
+    layer.bindPopup(`<div class="popup-title">${p.bairro}</div>
+      Região: ${p.regiao_adm}<br>
+      Cresc. 1977-2024: <b>${fmt.format(p.crescimento_1977_2024_km2)} km²</b><br>
+      Urb. 2024: ${fmt.format(p.urb2024_km2)} km² (${fmt.format(p.pct_urb_2024)}%)`);
+  }
+}).addTo(map);
+const l1977 = L.geoJSON(data.geojson.urb1977, { style: { color: '#9d3c3a', weight: 1.5, fillColor: '#9d3c3a', fillOpacity: 0.48 } });
+const l2002 = L.geoJSON(data.geojson.urb2002, { style: { color: '#d47b36', weight: 1.4, fillColor: '#d47b36', fillOpacity: 0.38 } });
+const l2024 = L.geoJSON(data.geojson.urb2024, { style: { color: '#b79820', weight: 1.2, fillColor: '#e1bb37', fillOpacity: 0.30 } });
+const floripaBounds = bairrosLayer.getBounds().pad(0.12);
+map.setMaxBounds(floripaBounds);
+L.control.layers({
+  'OpenStreetMap': osmBase,
+  'Google Satélite': googleSatelliteBase
+}, {
+  'Crescimento por bairro': bairrosLayer,
+  'Mancha urbana 1977': l1977,
+  'Mancha urbana 2002/2003': l2002,
+  'Área urbanizada 2024': l2024
+}, { collapsed: true, position: 'bottomright' }).addTo(map);
+map.fitBounds(bairrosLayer.getBounds(), { padding: [18, 18], maxZoom: 11 });
+document.getElementById('export-map-png').addEventListener('click', () => {
+  const target = document.querySelector('.map-card');
+  target.classList.add('exporting');
+  map.stop();
+  map.invalidateSize();
+  window.setTimeout(() => {
+    html2canvas(target, {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      scale: 2,
+      onclone: normalizeLeafletForExport
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'webmap_manchas_urbanas_florianopolis.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }).finally(() => target.classList.remove('exporting'));
+  }, 120);
+});
+function parseTranslate(value) {
+  if (!value || value === 'none') return { x: 0, y: 0 };
+  const matrix3d = value.match(/^matrix3d\((.+)\)$/);
+  if (matrix3d) {
+    const parts = matrix3d[1].split(',').map(Number);
+    return { x: parts[12] || 0, y: parts[13] || 0 };
+  }
+  const matrix = value.match(/^matrix\((.+)\)$/);
+  if (matrix) {
+    const parts = matrix[1].split(',').map(Number);
+    return { x: parts[4] || 0, y: parts[5] || 0 };
+  }
+  const translate = value.match(/translate(?:3d)?\(([-0-9.]+)px,\s*([-0-9.]+)px/);
+  return translate ? { x: Number(translate[1]) || 0, y: Number(translate[2]) || 0 } : { x: 0, y: 0 };
+}
+function flattenLeafletTransform(el, win) {
+  const transform = el.style.transform || win.getComputedStyle(el).transform;
+  const shift = parseTranslate(transform);
+  if (!shift.x && !shift.y) return;
+  const left = parseFloat(el.style.left || 0);
+  const top = parseFloat(el.style.top || 0);
+  el.style.left = `${left + shift.x}px`;
+  el.style.top = `${top + shift.y}px`;
+  el.style.transform = 'none';
+  el.style.transformOrigin = '0 0';
+}
+function normalizeLeafletForExport(clonedDoc) {
+  const shell = clonedDoc.querySelector('.map-card');
+  if (!shell) return;
+  const win = clonedDoc.defaultView;
+  shell.querySelectorAll('.leaflet-map-pane, .leaflet-tile-container, .leaflet-overlay-pane svg, .leaflet-tile, .leaflet-zoom-animated').forEach(el => {
+    flattenLeafletTransform(el, win);
+  });
+}
+const mapState = { theme: localStorage.getItem('urbanizacao-webmap-theme-floripa') || 'light' };
+function applyMapTheme(theme) {
+  mapState.theme = theme;
+  document.body.dataset.theme = theme;
+  document.getElementById('map-theme-toggle').textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+  localStorage.setItem('urbanizacao-webmap-theme-floripa', theme);
+}
+applyMapTheme(mapState.theme);
+document.getElementById('map-theme-toggle').addEventListener('click', () => {
+  applyMapTheme(mapState.theme === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

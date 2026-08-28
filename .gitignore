@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+*.tmp
+*.bak
+*.log
+
+webmap_manchas_urbanas_dashboard (*).png
+webmap_manchas_urbanas_florianopolis (*).png
+

@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparativo socio-urbano - Florianópolis</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root {
+  --bg: #f6f2ec;
+  --panel: #ffffff;
+  --ink: #10231f;
+  --muted: #56665f;
+  --grid: #ded8cf;
+  --border: #d8cec2;
+  --control: #fbf8f2;
+  --shadow: rgba(72, 58, 44, .10);
+  --teal: #2f8077;
+  --blue: #6f88b7;
+  --gold: #d8ae35;
+  --red: #d07a78;
+  --hero-bg: linear-gradient(135deg, #c8eee8 0%, #c7dcf5 55%, #e7d8f0 100%);
+  --metric-a: linear-gradient(135deg, #d8f3ef 0%, #edf8f6 100%);
+  --metric-b: linear-gradient(135deg, #d9e9fb 0%, #f0f6ff 100%);
+  --metric-c: linear-gradient(135deg, #d7f0fa 0%, #eefaff 100%);
+  --metric-d: linear-gradient(135deg, #dff3e3 0%, #f2fbf4 100%);
+  --metric-e: linear-gradient(135deg, #e7def7 0%, #f8f3ff 100%);
+}
+body[data-theme="dark"] {
+  --bg: #121817;
+  --panel: #1b2422;
+  --ink: #eef7f3;
+  --muted: #b6c6bf;
+  --grid: #34423d;
+  --border: #3d4d47;
+  --control: #22302c;
+  --shadow: rgba(0, 0, 0, .34);
+  --teal: #84d8cc;
+  --blue: #a7bceb;
+  --gold: #efcf6a;
+  --red: #efa09d;
+  --hero-bg: linear-gradient(135deg, #183a38 0%, #1b3552 58%, #2d2742 100%);
+  --metric-a: linear-gradient(135deg, #1d3d3a 0%, #1b2c2a 100%);
+  --metric-b: linear-gradient(135deg, #20344d 0%, #1b2530 100%);
+  --metric-c: linear-gradient(135deg, #1c3b48 0%, #1a2a31 100%);
+  --metric-d: linear-gradient(135deg, #213c2a 0%, #1b2a20 100%);
+  --metric-e: linear-gradient(135deg, #302a49 0%, #252033 100%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--ink); }
+main { max-width: 1480px; margin: 0 auto; padding: 34px; }
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 22px;
+  background: var(--hero-bg);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 32px;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+h1 { margin: 0; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.05; letter-spacing: 0; }
+.lead { margin: 12px 0 0; color: var(--muted); font-size: 22px; line-height: 1.45; max-width: 1040px; }
+.header-actions { display: flex; align-items: end; gap: 16px; flex-shrink: 0; }
+button, .button { font: inherit; }
+.theme-toggle, .button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 15px 22px;
+  white-space: nowrap;
+  font-size: 18px;
+  text-decoration: none;
+  display: inline-block;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.metric {
+  padding: 22px;
+  min-height: 156px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+.metric:nth-child(5n + 1) { background: var(--metric-a); }
+.metric:nth-child(5n + 2) { background: var(--metric-b); }
+.metric:nth-child(5n + 3) { background: var(--metric-c); }
+.metric:nth-child(5n + 4) { background: var(--metric-d); }
+.metric:nth-child(5n + 5) { background: var(--metric-e); }
+.metric span { display: block; color: var(--muted); font-size: 16px; margin-bottom: 10px; }
+.metric strong { display: block; font-size: 30px; line-height: 1.08; }
+.metric small { display: block; color: var(--muted); font-size: 15px; line-height: 1.35; margin-top: 12px; }
+.tabs { display: grid; gap: 12px; }
+.tab-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 8px 0 12px; }
+.tab-button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  text-align: center;
+  font-size: 15px;
+  box-shadow: 0 6px 16px var(--shadow);
+}
+.tab-button:nth-child(5n + 1) { background: var(--metric-a); }
+.tab-button:nth-child(5n + 2) { background: var(--metric-b); }
+.tab-button:nth-child(5n + 3) { background: var(--metric-c); }
+.tab-button:nth-child(5n + 4) { background: var(--metric-d); }
+.tab-button:nth-child(5n + 5) { background: var(--metric-e); }
+.tab-button.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+body[data-theme="dark"] .tab-button.active { color: #10231f; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  margin: 20px 24px 0;
+  padding: 18px;
+  background: rgba(242, 235, 140, .36);
+  border: 1px solid rgba(166, 153, 73, .18);
+  border-radius: 12px;
+}
+.panel-title { margin: 0; font-size: 34px; line-height: 1.12; letter-spacing: 0; }
+.panel-note { margin: 10px 0 0; color: var(--muted); line-height: 1.45; font-size: 18px; }
+.plot-wrap {
+  margin: 20px 24px 24px;
+  padding: 18px;
+  background: rgba(242, 235, 140, .36);
+  border: 1px solid rgba(166, 153, 73, .18);
+  border-radius: 12px;
+}
+.chart { width: 100%; min-height: 640px; }
+.chart.short { min-height: 520px; }
+.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.info-card {
+  min-height: 160px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px var(--shadow);
+  background: var(--metric-a);
+}
+.info-card:nth-child(5n + 2) { background: var(--metric-b); }
+.info-card:nth-child(5n + 3) { background: var(--metric-c); }
+.info-card:nth-child(5n + 4) { background: var(--metric-d); }
+.info-card:nth-child(5n + 5) { background: var(--metric-e); }
+.info-card h3 { margin: 0 0 10px; font-size: 22px; line-height: 1.16; }
+.info-card p, .info-card li { color: var(--muted); font-size: 16px; line-height: 1.46; }
+.info-card p { margin: 0 0 12px; }
+.info-card ul { margin: 0; padding-left: 20px; }
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.formula {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--metric-a);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+.formula:nth-child(5n + 2) { background: var(--metric-b); }
+.formula:nth-child(5n + 3) { background: var(--metric-c); }
+.formula:nth-child(5n + 4) { background: var(--metric-d); }
+.formula:nth-child(5n + 5) { background: var(--metric-e); }
+.formula strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 17px;
+}
+.formula code {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-family: Consolas, Monaco, monospace;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.tab-explain {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.explain-card {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--metric-b);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+.explain-card:nth-child(2) { background: var(--metric-d); }
+.explain-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.explain-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+th { color: var(--ink); background: var(--control); position: sticky; top: 0; }
+td { color: var(--muted); }
+tbody tr:nth-child(5n + 1) { background: rgba(216, 243, 239, .42); }
+tbody tr:nth-child(5n + 2) { background: rgba(217, 233, 251, .42); }
+tbody tr:nth-child(5n + 3) { background: rgba(215, 240, 250, .42); }
+tbody tr:nth-child(5n + 4) { background: rgba(223, 243, 227, .42); }
+tbody tr:nth-child(5n + 5) { background: rgba(231, 222, 247, .42); }
+body[data-theme="dark"] tbody tr:nth-child(5n + 1) { background: rgba(29, 61, 58, .38); }
+body[data-theme="dark"] tbody tr:nth-child(5n + 2) { background: rgba(32, 52, 77, .38); }
+body[data-theme="dark"] tbody tr:nth-child(5n + 3) { background: rgba(28, 59, 72, .38); }
+body[data-theme="dark"] tbody tr:nth-child(5n + 4) { background: rgba(33, 60, 42, .38); }
+body[data-theme="dark"] tbody tr:nth-child(5n + 5) { background: rgba(48, 42, 73, .38); }
+.profile-badge {
+  display: inline-block;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #10231f;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.profile-alta-expansao-e-alta-densidade { background: #94aee6; }
+.profile-alta-expansao-e-baixa-densidade { background: #88c9df; }
+.profile-baixa-expansao-e-alta-densidade { background: #b6d98b; }
+.profile-baixa-expansao-e-baixa-densidade { background: #e8cf75; }
+.footer {
+  margin: 22px 0 0;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 10px 28px var(--shadow);
+}
+.footer h2 {
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 1.12;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.footer-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--metric-a);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+.footer-card:nth-child(2) { background: var(--metric-b); }
+.footer-card:nth-child(3) { background: var(--metric-c); }
+.footer-card:nth-child(4) { background: var(--metric-d); }
+.footer strong { display: block; color: var(--ink); margin-bottom: 7px; }
+.footer p { margin: 0; }
+@media (max-width: 980px) {
+  main { padding: 14px; }
+  header { flex-direction: column; align-items: stretch; }
+  .header-actions { flex-direction: column; align-items: stretch; }
+  .metrics, .info-grid, .tab-list, .tab-explain, .formula-grid, .footer-grid { grid-template-columns: 1fr; }
+  .chart { min-height: 520px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Comparativo socio-urbano</h1>
+      <p class="lead">Florianópolis - cruzamento entre crescimento urbano, população estimada, densidade e domicílios por bairro.</p>
+    </div>
+    <div class="header-actions">
+      <a class="button" href="../index.html">Voltar ao índice</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar modo escuro">Modo escuro</button>
+    </div>
+  </header>
+
+  <section class="metrics">
+    <div class="metric"><span>Bairros analisados</span><strong>56</strong><small>Unidades com dados urbanos e populacionais.</small></div>
+    <div class="metric"><span>População estimada</span><strong>537.211</strong><small>Soma dos bairros na camada `gvw_bairros`.</small></div>
+    <div class="metric"><span>Domicílios estimados</span><strong>285.000</strong><small>Base para comparações de ocupação residencial.</small></div>
+    <div class="metric"><span>Crescimento urbano</span><strong>66,85 km²</strong><small>Diferença entre 1977 e 2024.</small></div>
+    <div class="metric"><span>Maior crescimento</span><strong>Campeche</strong><small>8,88 km² entre 1977 e 2024.</small></div>
+  </section>
+
+  <section class="tabs" aria-label="Comparações socio-urbanas">
+    <div class="tab-list" role="tablist">
+      <button class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="tab-historia" data-tab="tab-historia">História dos dados</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-metodologia" data-tab="tab-metodologia">Metodologia/Estatísticas</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-glossario" data-tab="tab-glossario">Glossário</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-pop" data-tab="tab-pop">Crescimento x população</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-densidade" data-tab="tab-densidade">Crescimento x densidade</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-quadrantes" data-tab="tab-quadrantes">Perfis de bairros</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-rankings" data-tab="tab-rankings">Rankings comparativos</button>
+      <button class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="tab-tabela" data-tab="tab-tabela">Tabela síntese</button>
+    </div>
+
+    <div id="tab-historia" class="tab-panel active" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">O que este dashboard compara</h2>
+          <p class="panel-note">Este segundo painel não substitui o dashboard principal: ele aprofunda a leitura social da urbanização por bairro.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="info-grid">
+            <article class="info-card">
+              <h3>Pergunta central</h3>
+              <p>Os bairros que mais cresceram em área urbanizada também concentram mais população, domicílios e densidade?</p>
+            </article>
+            <article class="info-card">
+              <h3>Como ler</h3>
+              <p>Crescimento em km² mostra expansão territorial. População, densidade e domicílios ajudam a diferenciar expansão extensa de ocupação concentrada.</p>
+            </article>
+            <article class="info-card">
+              <h3>Cuidado interpretativo</h3>
+              <p>A população é uma fotografia recente, enquanto o crescimento urbano acumula 1977-2024. Portanto, a leitura é comparativa, não causal.</p>
+            </article>
+            <article class="info-card">
+              <h3>Correlação população x crescimento</h3>
+              <p>Coeficiente de Pearson: <strong>0,600</strong>. Valores próximos de 1 indicam associação positiva mais forte.</p>
+            </article>
+            <article class="info-card">
+              <h3>Correlação densidade x crescimento</h3>
+              <p>Coeficiente de Pearson: <strong>-0,297</strong>. Ajuda a observar se expansão territorial acompanha adensamento.</p>
+            </article>
+            <article class="info-card">
+              <h3>Correlação densidade x % urbano</h3>
+              <p>Coeficiente de Pearson: <strong>0,793</strong>. Relaciona ocupação populacional e proporção urbanizada em 2024.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-metodologia" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Metodologia e estatísticas</h2>
+          <p class="panel-note">Resumo dos dados usados, indicadores calculados e fórmulas aplicadas no dashboard comparativo socio-urbano.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba documenta como a tabela comparativa foi construída a partir do cruzamento entre urbanização por bairro e atributos populacionais da camada `gvw_bairros`.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>Os indicadores são exploratórios. Eles aproximam a urbanização acumulada entre 1977 e 2024 de uma fotografia populacional recente dos bairros.</p>
+            </div>
+          </div>
+          <div class="formula-grid">
+            <div class="formula">
+              <strong>Crescimento urbano absoluto</strong>
+              <code>ΔA = Aurb_2024 - Aurb_1977</code>
+            </div>
+            <div class="formula">
+              <strong>Crescimento por mil habitantes</strong>
+              <code>C1000 = (ΔA / população_estimada) × 1.000</code>
+            </div>
+            <div class="formula">
+              <strong>Área urbanizada por mil habitantes</strong>
+              <code>A1000 = (Aurb_2024 / população_estimada) × 1.000</code>
+            </div>
+            <div class="formula">
+              <strong>Habitantes por km² urbanizado</strong>
+              <code>HabUrb = população_estimada / Aurb_2024</code>
+            </div>
+            <div class="formula">
+              <strong>Domicílios por km² urbanizado</strong>
+              <code>DomUrb = domicílios_estimados / Aurb_2024</code>
+            </div>
+            <div class="formula">
+              <strong>Crescimento relativo</strong>
+              <code>Crel = (ΔA / Aurb_1977) × 100</code>
+            </div>
+            <div class="formula">
+              <strong>Correlação de Pearson</strong>
+              <code>r = cov(X,Y) / (σX × σY)</code>
+            </div>
+            <div class="formula">
+              <strong>Perfis socio-urbanos</strong>
+              <code>perfil = combinação entre ΔA acima/abaixo da mediana e densidade acima/abaixo da mediana</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-glossario" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Glossário</h2>
+          <p class="panel-note">Definições dos principais termos usados na leitura socio-urbana do dashboard.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="info-grid">
+            <article class="info-card"><h3>Crescimento urbano</h3><p>Aumento da área urbanizada entre dois anos. Neste painel, o recorte principal compara 1977 e 2024.</p></article>
+            <article class="info-card"><h3>População estimada</h3><p>População atribuída aos bairros na camada `gvw_bairros`. É usada como aproximação recente para comparação com a mancha urbana.</p></article>
+            <article class="info-card"><h3>Densidade populacional</h3><p>Relação entre população e área territorial do bairro, expressa em habitantes por km².</p></article>
+            <article class="info-card"><h3>Domicílios estimados</h3><p>Número estimado de domicílios por bairro. Ajuda a observar a ocupação residencial associada à urbanização.</p></article>
+            <article class="info-card"><h3>Área urbanizada por habitante</h3><p>Indicador que relaciona a área urbana de 2024 com a população estimada. Valores maiores sugerem ocupação mais espalhada.</p></article>
+            <article class="info-card"><h3>Crescimento por mil habitantes</h3><p>Normaliza o crescimento urbano pelo tamanho populacional do bairro, permitindo comparar bairros muito diferentes.</p></article>
+            <article class="info-card"><h3>Correlação</h3><p>Medida estatística de associação entre duas variáveis. Não prova causalidade, mas indica se elas tendem a variar juntas.</p></article>
+            <article class="info-card"><h3>Mediana</h3><p>Valor central da distribuição. Foi usada para separar bairros acima e abaixo do crescimento e da densidade típicos.</p></article>
+            <article class="info-card"><h3>Alta expansão</h3><p>Bairro com crescimento urbano igual ou superior à mediana municipal dos bairros analisados.</p></article>
+            <article class="info-card"><h3>Alta densidade</h3><p>Bairro com densidade populacional igual ou superior à mediana municipal dos bairros analisados.</p></article>
+            <article class="info-card"><h3>Espraiamento urbano</h3><p>Expansão territorial da área urbanizada que pode ocorrer sem aumento proporcional da densidade populacional.</p></article>
+            <article class="info-card"><h3>Adensamento</h3><p>Concentração maior de habitantes ou domicílios em uma área menor, geralmente associada a ocupação urbana mais compacta.</p></article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-pop" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Crescimento urbano x população</h2>
+          <p class="panel-note">Barras comparativas para os bairros com maior crescimento urbano. A leitura aproxima crescimento territorial em km² e população estimada em milhares de habitantes.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba compara os bairros que mais ampliaram a mancha urbana com sua população estimada atual. Ela ajuda a identificar se a expansão territorial ocorreu em bairros também populosos.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>As barras verdes mostram crescimento em km²; as barras azuis mostram população em milhares de habitantes. Como as unidades são diferentes, a leitura deve ser comparativa, não de soma direta.</p>
+            </div>
+          </div>
+          <div id="popChart" class="chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-densidade" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Crescimento urbano x densidade</h2>
+          <p class="panel-note">Barras comparativas para os bairros mais densos, mostrando densidade em mil hab/km² e crescimento urbano em km².</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba observa os bairros mais densos e compara essa concentração populacional com o crescimento urbano acumulado entre 1977 e 2024.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>Bairros densos nem sempre são os que mais expandiram em área. Quando a densidade é alta e o crescimento em km² é baixo, a leitura sugere ocupação mais concentrada.</p>
+            </div>
+          </div>
+          <div id="densChart" class="chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-quadrantes" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Perfis socio-urbanos dos bairros</h2>
+          <p class="panel-note">Resumo dos quatro perfis criados pelas medianas de crescimento urbano e densidade populacional, sem sobreposição de pontos.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba agrupa os bairros em quatro perfis, combinando crescimento urbano e densidade populacional. O objetivo é resumir padrões territoriais sem poluir a visualização.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>O gráfico mostra quanto cada perfil acumula de crescimento urbano e quantos bairros pertencem a ele. A classificação usa as medianas como linha de separação.</p>
+            </div>
+          </div>
+          <div id="quadChart" class="chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-rankings" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Rankings comparativos</h2>
+          <p class="panel-note">Comparação entre maior crescimento absoluto, maior população, maior densidade e maior crescimento por mil habitantes.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba reúne rankings complementares para enxergar a urbanização por diferentes lentes: área, população, densidade e crescimento relativo ao tamanho populacional.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>O ranking principal aparece primeiro. Os demais podem ser ativados pela legenda do Plotly, permitindo comparar quais bairros mudam de posição conforme o indicador escolhido.</p>
+            </div>
+          </div>
+          <div id="rankChart" class="chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-tabela" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Tabela síntese por bairro</h2>
+          <p class="panel-note">Base final exportada também em CSV, organizada para revisão e uso em análises estatísticas complementares.</p>
+        </div>
+        <div class="plot-wrap">
+          <div class="tab-explain">
+            <div class="explain-card">
+              <strong>O que está sendo apresentado</strong>
+              <p>Esta aba mostra a base analítica bairro a bairro, reunindo crescimento urbano, percentual urbanizado, população, densidade, domicílios e perfil socio-urbano.</p>
+            </div>
+            <div class="explain-card">
+              <strong>Como interpretar</strong>
+              <p>As linhas usam tons pastel para facilitar a leitura sequencial. A coluna de perfil sintetiza se o bairro combina alta ou baixa expansão com alta ou baixa densidade.</p>
+            </div>
+          </div>
+          <div class="table-wrap"><table id="summaryTable"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <h2>Referências e processamento</h2>
+    <div class="footer-grid">
+      <div class="footer-card">
+        <strong>Autoria</strong>
+        <p>Caetano Ronan - UFSC.</p>
+      </div>
+      <div class="footer-card">
+        <strong>Fontes</strong>
+        <p>`urbanizacao_por_bairro_1977_2002_2024.csv` e camada `gvw_bairros`, com população estimada, densidade, domicílios e regiões administrativas.</p>
+      </div>
+      <div class="footer-card">
+        <strong>Processamento</strong>
+        <p>SIRGAS 2000 / UTM zona 22S, EPSG:31982. Indicadores gerados por cruzamento tabular dos bairros, cálculo de razões, correlações e perfis por mediana.</p>
+      </div>
+      <div class="footer-card">
+        <strong>Leitura crítica</strong>
+        <p>A comparação é exploratória: população e densidade representam uma base recente, enquanto o crescimento urbano é acumulado entre 1977 e 2024.</p>
+      </div>
+    </div>
+  </footer>
+</main>
+<script>
+const data = {"records": [{"bairro": "Campeche", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 15.3917, "urb1977_km2": 0.9542, "urb2002_km2": 5.0052, "urb2024_km2": 9.8353, "crescimento_1977_2024_km2": 8.8811, "pct_urb_1977": 6.1996, "pct_urb_2002": 32.5188, "pct_urb_2024": 63.9001, "pop_estimada": 30934, "densidade_pop_bairro": 2011.31, "dom_estima": 16678, "densidade0": 1084.39, "media_mora": 1.85, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.28709833839787935, "area_urb_2024_por_1000_hab_km2": 0.31794465636516456, "hab_por_km2_urb_2024": 3145.20146818094, "dom_por_km2_urb_2024": 1695.7286508799934, "crescimento_relativo_1977_2024_pct": 930.7377908195347, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Rio Vermelho", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 18.0295, "urb1977_km2": 0.6246, "urb2002_km2": 3.2574, "urb2024_km2": 8.3665, "crescimento_1977_2024_km2": 7.7419, "pct_urb_1977": 3.4643, "pct_urb_2002": 18.0671, "pct_urb_2024": 46.4046, "pop_estimada": 30751, "densidade_pop_bairro": 1707.44, "dom_estima": 14048, "densidade0": 780.01, "media_mora": 2.19, "distrito_a": "Rio Vermelho", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2517609183441189, "area_urb_2024_por_1000_hab_km2": 0.2720724529283601, "hab_por_km2_urb_2024": 3675.491543656248, "dom_por_km2_urb_2024": 1679.0772724556266, "crescimento_relativo_1977_2024_pct": 1239.497278258085, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Ingleses", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 16.6992, "urb1977_km2": 1.6509, "urb2002_km2": 5.8764, "urb2024_km2": 7.955, "crescimento_1977_2024_km2": 6.3041, "pct_urb_1977": 9.8864, "pct_urb_2002": 35.1896, "pct_urb_2024": 47.6372, "pop_estimada": 46320, "densidade_pop_bairro": 2775.31, "dom_estima": 30137, "densidade0": 1805.69, "media_mora": 1.54, "distrito_a": "Ingleses", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.13609887737478413, "area_urb_2024_por_1000_hab_km2": 0.1717400690846287, "hab_por_km2_urb_2024": 5822.752985543683, "dom_por_km2_urb_2024": 3788.4349465744813, "crescimento_relativo_1977_2024_pct": 381.85838027742443, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Rio Tavares", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 17.738, "urb1977_km2": 0.7428, "urb2002_km2": 2.3259, "urb2024_km2": 4.1193, "crescimento_1977_2024_km2": 3.3765, "pct_urb_1977": 4.1874, "pct_urb_2002": 13.1123, "pct_urb_2024": 23.223, "pop_estimada": 14936, "densidade_pop_bairro": 842.41, "dom_estima": 7667, "densidade0": 432.43, "media_mora": 1.95, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2260645420460632, "area_urb_2024_por_1000_hab_km2": 0.2757967327262989, "hab_por_km2_urb_2024": 3625.858762411089, "dom_por_km2_urb_2024": 1861.238559949506, "crescimento_relativo_1977_2024_pct": 454.5638126009693, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Carianos", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 21.3581, "urb1977_km2": 2.0648, "urb2002_km2": 3.9107, "urb2024_km2": 5.2784, "crescimento_1977_2024_km2": 3.2135, "pct_urb_1977": 9.6676, "pct_urb_2002": 18.3103, "pct_urb_2024": 24.7137, "pop_estimada": 9577, "densidade_pop_bairro": 448.78, "dom_estima": 3930, "densidade0": 184.16, "media_mora": 2.44, "distrito_a": "Tapera da Base", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3355434896105252, "area_urb_2024_por_1000_hab_km2": 0.5511538059935263, "hab_por_km2_urb_2024": 1814.3755683540464, "dom_por_km2_urb_2024": 744.5438011518642, "crescimento_relativo_1977_2024_pct": 155.6325067803177, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Jurerê", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 12.8739, "urb1977_km2": 0.9254, "urb2002_km2": 3.7513, "urb2024_km2": 3.649, "crescimento_1977_2024_km2": 2.7235, "pct_urb_1977": 7.1885, "pct_urb_2002": 29.1384, "pct_urb_2024": 28.344, "pop_estimada": 8134, "densidade_pop_bairro": 632.5, "dom_estima": 7501, "densidade0": 583.28, "media_mora": 1.08, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3348291123678387, "area_urb_2024_por_1000_hab_km2": 0.44861076960904844, "hab_por_km2_urb_2024": 2229.1038640723486, "dom_por_km2_urb_2024": 2055.6316799123047, "crescimento_relativo_1977_2024_pct": 294.30516533390966, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Ratones", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 26.5297, "urb1977_km2": 0.4699, "urb2002_km2": 1.2486, "urb2024_km2": 3.0291, "crescimento_1977_2024_km2": 2.5592, "pct_urb_1977": 1.7711, "pct_urb_2002": 4.7063, "pct_urb_2024": 11.4177, "pop_estimada": 3925, "densidade_pop_bairro": 148.06, "dom_estima": 1663, "densidade0": 62.73, "media_mora": 2.36, "distrito_a": "Ratones", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.6520254777070065, "area_urb_2024_por_1000_hab_km2": 0.7717452229299363, "hab_por_km2_urb_2024": 1295.7644184741341, "dom_por_km2_urb_2024": 549.007956158595, "crescimento_relativo_1977_2024_pct": 544.6265162800596, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Canasvieiras", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 14.4314, "urb1977_km2": 2.0861, "urb2002_km2": 3.3326, "urb2024_km2": 4.5129, "crescimento_1977_2024_km2": 2.4268, "pct_urb_1977": 14.4555, "pct_urb_2002": 23.0928, "pct_urb_2024": 31.2715, "pop_estimada": 15979, "densidade_pop_bairro": 1108.11, "dom_estima": 12381, "densidade0": 858.6, "media_mora": 1.29, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.15187433506477252, "area_urb_2024_por_1000_hab_km2": 0.2824269353526504, "hab_por_km2_urb_2024": 3540.7387710784637, "dom_por_km2_urb_2024": 2743.4687229940837, "crescimento_relativo_1977_2024_pct": 116.33191122189731, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Cachoeira do Bom Jesus", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 9.0889, "urb1977_km2": 0.8879, "urb2002_km2": 1.8129, "urb2024_km2": 3.2036, "crescimento_1977_2024_km2": 2.3157, "pct_urb_1977": 9.7689, "pct_urb_2002": 19.9466, "pct_urb_2024": 35.2474, "pop_estimada": 6616, "densidade_pop_bairro": 728.63, "dom_estima": 4840, "densidade0": 533.04, "media_mora": 1.37, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3500151148730351, "area_urb_2024_por_1000_hab_km2": 0.4842200725513905, "hab_por_km2_urb_2024": 2065.176676239231, "dom_por_km2_urb_2024": 1510.8003496066926, "crescimento_relativo_1977_2024_pct": 260.8063971167924, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Lagoa da Conceição", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 19.6589, "urb1977_km2": 2.122, "urb2002_km2": 3.4981, "urb2024_km2": 4.1935, "crescimento_1977_2024_km2": 2.0715, "pct_urb_1977": 10.7943, "pct_urb_2002": 17.7942, "pct_urb_2024": 21.3313, "pop_estimada": 12468, "densidade_pop_bairro": 634.83, "dom_estima": 7228, "densidade0": 368.02, "media_mora": 1.72, "distrito_a": "Lagoa da Conceição", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1661453320500481, "area_urb_2024_por_1000_hab_km2": 0.3363410330445942, "hab_por_km2_urb_2024": 2973.172767378085, "dom_por_km2_urb_2024": 1723.6198879217836, "crescimento_relativo_1977_2024_pct": 97.62016965127238, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Santo Antônio de Lisboa", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 14.3196, "urb1977_km2": 0.4848, "urb2002_km2": 1.3697, "urb2024_km2": 2.2261, "crescimento_1977_2024_km2": 1.7413, "pct_urb_1977": 3.3859, "pct_urb_2002": 9.5653, "pct_urb_2024": 15.546, "pop_estimada": 2857, "densidade_pop_bairro": 199.65, "dom_estima": 1351, "densidade0": 94.41, "media_mora": 2.11, "distrito_a": "Santo Antônio de Lisboa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.6094854742737137, "area_urb_2024_por_1000_hab_km2": 0.7791739586979349, "hab_por_km2_urb_2024": 1283.4104487669017, "dom_por_km2_urb_2024": 606.8909752481918, "crescimento_relativo_1977_2024_pct": 359.17904290429044, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Saco Grande", "regiao_adm": "Região Central", "area_bairro_km2": 11.0385, "urb1977_km2": 0.6424, "urb2002_km2": 1.8376, "urb2024_km2": 2.1986, "crescimento_1977_2024_km2": 1.5562, "pct_urb_1977": 5.8193, "pct_urb_2002": 16.6476, "pct_urb_2024": 19.9177, "pop_estimada": 9331, "densidade_pop_bairro": 845.96, "dom_estima": 3986, "densidade0": 361.38, "media_mora": 2.34, "distrito_a": "Saco Grande", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.16677740863787377, "area_urb_2024_por_1000_hab_km2": 0.23562319151216377, "hab_por_km2_urb_2024": 4244.064404621123, "dom_por_km2_urb_2024": 1812.9718912034932, "crescimento_relativo_1977_2024_pct": 242.2478206724782, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Vargem do Bom Jesus", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 5.1218, "urb1977_km2": 0.5471, "urb2002_km2": 0.89, "urb2024_km2": 1.8601, "crescimento_1977_2024_km2": 1.313, "pct_urb_1977": 10.681, "pct_urb_2002": 17.3765, "pct_urb_2024": 36.3167, "pop_estimada": 7900, "densidade_pop_bairro": 1542.97, "dom_estima": 3273, "densidade0": 639.26, "media_mora": 2.41, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1662025316455696, "area_urb_2024_por_1000_hab_km2": 0.23545569620253165, "hab_por_km2_urb_2024": 4247.083490134939, "dom_por_km2_urb_2024": 1759.5828181280576, "crescimento_relativo_1977_2024_pct": 239.9926887223542, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Vargem Grande", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 10.2654, "urb1977_km2": 0.6087, "urb2002_km2": 1.4537, "urb2024_km2": 1.8604, "crescimento_1977_2024_km2": 1.2518, "pct_urb_1977": 5.9293, "pct_urb_2002": 14.1608, "pct_urb_2024": 18.1231, "pop_estimada": 7412, "densidade_pop_bairro": 722.42, "dom_estima": 3233, "densidade0": 315.11, "media_mora": 2.29, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1688882892606584, "area_urb_2024_por_1000_hab_km2": 0.2509983810037777, "hab_por_km2_urb_2024": 3984.0894431305096, "dom_por_km2_urb_2024": 1737.7983229413028, "crescimento_relativo_1977_2024_pct": 205.65138820436997, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Tapera da Base", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 3.5661, "urb1977_km2": 0.4636, "urb2002_km2": 1.3977, "urb2024_km2": 1.662, "crescimento_1977_2024_km2": 1.1984, "pct_urb_1977": 13.0008, "pct_urb_2002": 39.1936, "pct_urb_2024": 46.6046, "pop_estimada": 13631, "densidade_pop_bairro": 3828.93, "dom_estima": 5419, "densidade0": 1522.19, "media_mora": 2.51, "distrito_a": "Tapera da Base", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.08791724745066391, "area_urb_2024_por_1000_hab_km2": 0.12192795833027657, "hab_por_km2_urb_2024": 8201.564380264741, "dom_por_km2_urb_2024": 3260.5294825511432, "crescimento_relativo_1977_2024_pct": 258.4987057808455, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Alto Ribeirão", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 7.8175, "urb1977_km2": 0.5621, "urb2002_km2": 0.7802, "urb2024_km2": 1.7149, "crescimento_1977_2024_km2": 1.1528, "pct_urb_1977": 7.1899, "pct_urb_2002": 9.9805, "pct_urb_2024": 21.9368, "pop_estimada": 7395, "densidade_pop_bairro": 946.86, "dom_estima": 3146, "densidade0": 402.82, "media_mora": 2.35, "distrito_a": "Ribeirão da Ilha", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1558891142663962, "area_urb_2024_por_1000_hab_km2": 0.2318999323867478, "hab_por_km2_urb_2024": 4312.204793282407, "dom_por_km2_urb_2024": 1834.5093008338677, "crescimento_relativo_1977_2024_pct": 205.0880626223092, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Saco dos Limões", "regiao_adm": "Região Central", "area_bairro_km2": 3.1292, "urb1977_km2": 0.8162, "urb2002_km2": 1.2402, "urb2024_km2": 1.9569, "crescimento_1977_2024_km2": 1.1407, "pct_urb_1977": 26.0828, "pct_urb_2002": 39.6312, "pct_urb_2024": 62.5362, "pop_estimada": 11469, "densidade_pop_bairro": 3664.22, "dom_estima": 5090, "densidade0": 1626.2, "media_mora": 2.25, "distrito_a": "Saco dos Limões", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.09945941232888657, "area_urb_2024_por_1000_hab_km2": 0.17062516348417475, "hab_por_km2_urb_2024": 5860.800245285911, "dom_por_km2_urb_2024": 2601.0526853697174, "crescimento_relativo_1977_2024_pct": 139.75741239892184, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Córrego Grande", "regiao_adm": "Região Central", "area_bairro_km2": 6.6036, "urb1977_km2": 1.3572, "urb2002_km2": 1.8307, "urb2024_km2": 2.4346, "crescimento_1977_2024_km2": 1.0774, "pct_urb_1977": 20.5527, "pct_urb_2002": 27.7222, "pct_urb_2024": 36.8679, "pop_estimada": 12812, "densidade_pop_bairro": 1941.21, "dom_estima": 6231, "densidade0": 944.1, "media_mora": 2.06, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.08409303777708398, "area_urb_2024_por_1000_hab_km2": 0.19002497658445208, "hab_por_km2_urb_2024": 5262.466113529943, "dom_por_km2_urb_2024": 2559.352665735644, "crescimento_relativo_1977_2024_pct": 79.38402593575007, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Ribeirão da Ilha", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 22.3528, "urb1977_km2": 0.9691, "urb2002_km2": 1.2948, "urb2024_km2": 2.0423, "crescimento_1977_2024_km2": 1.0733, "pct_urb_1977": 4.3353, "pct_urb_2002": 5.7926, "pct_urb_2024": 9.1368, "pop_estimada": 4434, "densidade_pop_bairro": 198.48, "dom_estima": 2787, "densidade0": 124.75, "media_mora": 1.59, "distrito_a": "Ribeirão da Ilha", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.24206134415877312, "area_urb_2024_por_1000_hab_km2": 0.4605999097880018, "hab_por_km2_urb_2024": 2171.0816236595992, "dom_por_km2_urb_2024": 1364.637908240709, "crescimento_relativo_1977_2024_pct": 110.75224435042823, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Pântano do Sul", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 34.636, "urb1977_km2": 0.8277, "urb2002_km2": 0.9726, "urb2024_km2": 1.885, "crescimento_1977_2024_km2": 1.0573, "pct_urb_1977": 2.3898, "pct_urb_2002": 2.8081, "pct_urb_2024": 5.4423, "pop_estimada": 4432, "densidade_pop_bairro": 128.06, "dom_estima": 3053, "densidade0": 88.21, "media_mora": 1.45, "distrito_a": "Pântano do Sul", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2385604693140794, "area_urb_2024_por_1000_hab_km2": 0.4253158844765343, "hab_por_km2_urb_2024": 2351.1936339522545, "dom_por_km2_urb_2024": 1619.628647214854, "crescimento_relativo_1977_2024_pct": 127.73951914945027, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Santinho", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 2.9861, "urb1977_km2": 0.2307, "urb2002_km2": 1.0347, "urb2024_km2": 1.2768, "crescimento_1977_2024_km2": 1.0461, "pct_urb_1977": 7.7259, "pct_urb_2002": 34.6493, "pct_urb_2024": 42.7587, "pop_estimada": 4993, "densidade_pop_bairro": 1675.5, "dom_estima": 3232, "densidade0": 1084.56, "media_mora": 1.54, "distrito_a": "Ingleses", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.20951331864610456, "area_urb_2024_por_1000_hab_km2": 0.2557180052072902, "hab_por_km2_urb_2024": 3910.5576441102758, "dom_por_km2_urb_2024": 2531.3283208020052, "crescimento_relativo_1977_2024_pct": 453.44603381014304, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Itacorubi", "regiao_adm": "Região Central", "area_bairro_km2": 12.8061, "urb1977_km2": 2.3441, "urb2002_km2": 2.8145, "urb2024_km2": 3.3789, "crescimento_1977_2024_km2": 1.0348, "pct_urb_1977": 18.3044, "pct_urb_2002": 21.9779, "pct_urb_2024": 26.3851, "pop_estimada": 23600, "densidade_pop_bairro": 1843.75, "dom_estima": 12348, "densidade0": 964.69, "media_mora": 1.91, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.04384745762711864, "area_urb_2024_por_1000_hab_km2": 0.1431737288135593, "hab_por_km2_urb_2024": 6984.521589866525, "dom_por_km2_urb_2024": 3654.4437538844004, "crescimento_relativo_1977_2024_pct": 44.144874365428095, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Vargem Pequena", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 5.8564, "urb1977_km2": 0.1494, "urb2002_km2": 0.5026, "urb2024_km2": 1.103, "crescimento_1977_2024_km2": 0.9536, "pct_urb_1977": 2.5508, "pct_urb_2002": 8.5822, "pct_urb_2024": 18.8342, "pop_estimada": 1898, "densidade_pop_bairro": 324.44, "dom_estima": 848, "densidade0": 144.96, "media_mora": 2.24, "distrito_a": "Ratones", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.5024236037934668, "area_urb_2024_por_1000_hab_km2": 0.5811380400421496, "hab_por_km2_urb_2024": 1720.7615593834996, "dom_por_km2_urb_2024": 768.8123300090662, "crescimento_relativo_1977_2024_pct": 638.2864792503347, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Barra da Lagoa", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 8.1095, "urb1977_km2": 0.8764, "urb2002_km2": 1.4841, "urb2024_km2": 1.7672, "crescimento_1977_2024_km2": 0.8908, "pct_urb_1977": 10.8066, "pct_urb_2002": 18.3002, "pct_urb_2024": 21.7913, "pop_estimada": 6537, "densidade_pop_bairro": 807.04, "dom_estima": 4301, "densidade0": 530.99, "media_mora": 1.52, "distrito_a": "Barra da Lagoa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1362704604558666, "area_urb_2024_por_1000_hab_km2": 0.2703380755698333, "hab_por_km2_urb_2024": 3699.0719782707106, "dom_por_km2_urb_2024": 2433.793571751924, "crescimento_relativo_1977_2024_pct": 101.64308534915565, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Monte Verde", "regiao_adm": "Região Central", "area_bairro_km2": 5.0541, "urb1977_km2": 0.1531, "urb2002_km2": 0.7883, "urb2024_km2": 0.9654, "crescimento_1977_2024_km2": 0.8123, "pct_urb_1977": 3.0302, "pct_urb_2002": 15.5966, "pct_urb_2024": 19.1017, "pop_estimada": 7525, "densidade_pop_bairro": 1490.1, "dom_estima": 3092, "densidade0": 612.28, "media_mora": 2.43, "distrito_a": "Saco Grande", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1079468438538206, "area_urb_2024_por_1000_hab_km2": 0.12829235880398673, "hab_por_km2_urb_2024": 7794.696498860576, "dom_por_km2_urb_2024": 3202.817484980319, "crescimento_relativo_1977_2024_pct": 530.5682560418027, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Ponta das Canas", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 3.1079, "urb1977_km2": 0.4126, "urb2002_km2": 1.0818, "urb2024_km2": 1.1933, "crescimento_1977_2024_km2": 0.7807, "pct_urb_1977": 13.2761, "pct_urb_2002": 34.8069, "pct_urb_2024": 38.3975, "pop_estimada": 5506, "densidade_pop_bairro": 1776.13, "dom_estima": 4655, "densidade0": 1501.61, "media_mora": 1.18, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.14179077370141663, "area_urb_2024_por_1000_hab_km2": 0.21672720668361786, "hab_por_km2_urb_2024": 4614.09536579234, "dom_por_km2_urb_2024": 3900.9469538255257, "crescimento_relativo_1977_2024_pct": 189.21473582161897, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Cacupé", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 1.8894, "urb1977_km2": 0.2885, "urb2002_km2": 0.7039, "urb2024_km2": 1.0627, "crescimento_1977_2024_km2": 0.7742, "pct_urb_1977": 15.2709, "pct_urb_2002": 37.2523, "pct_urb_2024": 56.2447, "pop_estimada": 1494, "densidade_pop_bairro": 790.48, "dom_estima": 692, "densidade0": 366.14, "media_mora": 2.16, "distrito_a": "Santo Antônio de Lisboa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.5182061579651941, "area_urb_2024_por_1000_hab_km2": 0.7113119143239626, "hab_por_km2_urb_2024": 1405.853015902889, "dom_por_km2_urb_2024": 651.1715441799191, "crescimento_relativo_1977_2024_pct": 268.35355285961873, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Costeira do Pirajubaé", "regiao_adm": "Região Central", "area_bairro_km2": 4.1931, "urb1977_km2": 0.6754, "urb2002_km2": 0.8524, "urb2024_km2": 1.4279, "crescimento_1977_2024_km2": 0.7524, "pct_urb_1977": 16.1084, "pct_urb_2002": 20.3292, "pct_urb_2024": 34.0527, "pop_estimada": 8535, "densidade_pop_bairro": 2036.99, "dom_estima": 3499, "densidade0": 835.08, "media_mora": 2.44, "distrito_a": "Saco dos Limões", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.08815465729349736, "area_urb_2024_por_1000_hab_km2": 0.1672993555946104, "hab_por_km2_urb_2024": 5977.309335387632, "dom_por_km2_urb_2024": 2450.4517123047835, "crescimento_relativo_1977_2024_pct": 111.40065146579803, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Morro das Pedras", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 1.5436, "urb1977_km2": 0.215, "urb2002_km2": 0.6103, "urb2024_km2": 0.9374, "crescimento_1977_2024_km2": 0.7224, "pct_urb_1977": 13.9312, "pct_urb_2002": 39.5412, "pct_urb_2024": 60.7329, "pop_estimada": 3222, "densidade_pop_bairro": 2092.21, "dom_estima": 1721, "densidade0": 1117.53, "media_mora": 1.87, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.22420856610800746, "area_urb_2024_por_1000_hab_km2": 0.2909373060211049, "hab_por_km2_urb_2024": 3437.166631107318, "dom_por_km2_urb_2024": 1835.929165777683, "crescimento_relativo_1977_2024_pct": 336.00000000000006, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Sambaqui", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 5.3386, "urb1977_km2": 0.4596, "urb2002_km2": 0.682, "urb2024_km2": 1.1421, "crescimento_1977_2024_km2": 0.6825, "pct_urb_1977": 8.6093, "pct_urb_2002": 12.7748, "pct_urb_2024": 21.3929, "pop_estimada": 3700, "densidade_pop_bairro": 694.18, "dom_estima": 1613, "densidade0": 302.63, "media_mora": 2.29, "distrito_a": "Santo Antônio de Lisboa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.18445945945945946, "area_urb_2024_por_1000_hab_km2": 0.3086756756756756, "hab_por_km2_urb_2024": 3239.646265650994, "dom_por_km2_urb_2024": 1412.310655809474, "crescimento_relativo_1977_2024_pct": 148.49869451697128, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "João Paulo", "regiao_adm": "Região Central", "area_bairro_km2": 2.8689, "urb1977_km2": 0.6252, "urb2002_km2": 0.9874, "urb2024_km2": 1.2819, "crescimento_1977_2024_km2": 0.6567, "pct_urb_1977": 21.7921, "pct_urb_2002": 34.4195, "pct_urb_2024": 44.684, "pop_estimada": 6034, "densidade_pop_bairro": 2102.44, "dom_estima": 2635, "densidade0": 918.12, "media_mora": 2.29, "distrito_a": "Saco Grande", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.10883327809081869, "area_urb_2024_por_1000_hab_km2": 0.21244613854822672, "hab_por_km2_urb_2024": 4707.075434901319, "dom_por_km2_urb_2024": 2055.5425540213746, "crescimento_relativo_1977_2024_pct": 105.03838771593091, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Armação", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 7.9601, "urb1977_km2": 0.7762, "urb2002_km2": 0.9548, "urb2024_km2": 1.345, "crescimento_1977_2024_km2": 0.5688, "pct_urb_1977": 9.7509, "pct_urb_2002": 11.995, "pct_urb_2024": 16.8966, "pop_estimada": 5133, "densidade_pop_bairro": 645.66, "dom_estima": 2947, "densidade0": 370.69, "media_mora": 1.74, "distrito_a": "Pântano do Sul", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.110812390414962, "area_urb_2024_por_1000_hab_km2": 0.26203000194817844, "hab_por_km2_urb_2024": 3816.35687732342, "dom_por_km2_urb_2024": 2191.0780669144983, "crescimento_relativo_1977_2024_pct": 73.28008245297603, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Centro", "regiao_adm": "Região Central", "area_bairro_km2": 5.3939, "urb1977_km2": 4.1957, "urb2002_km2": 4.6351, "urb2024_km2": 4.6659, "crescimento_1977_2024_km2": 0.4702, "pct_urb_1977": 77.7863, "pct_urb_2002": 85.9322, "pct_urb_2024": 86.5038, "pop_estimada": 42308, "densidade_pop_bairro": 7849.35, "dom_estima": 23368, "densidade0": 4335.44, "media_mora": 1.81, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.01111373735463742, "area_urb_2024_por_1000_hab_km2": 0.11028410702467618, "hab_por_km2_urb_2024": 9067.48965901541, "dom_por_km2_urb_2024": 5008.251355579846, "crescimento_relativo_1977_2024_pct": 11.206711633338893, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Praia Brava", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 2.5819, "urb1977_km2": 0.0, "urb2002_km2": 0.3529, "urb2024_km2": 0.4414, "crescimento_1977_2024_km2": 0.4414, "pct_urb_1977": 0.0, "pct_urb_2002": 13.6675, "pct_urb_2024": 17.0972, "pop_estimada": 349, "densidade_pop_bairro": 135.27, "dom_estima": 1311, "densidade0": 508.14, "media_mora": 0.27, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 1.264756446991404, "area_urb_2024_por_1000_hab_km2": 1.264756446991404, "hab_por_km2_urb_2024": 790.666062528319, "dom_por_km2_urb_2024": 2970.0951517897597, "crescimento_relativo_1977_2024_pct": null, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Pantanal", "regiao_adm": "Região Central", "area_bairro_km2": 2.313, "urb1977_km2": 0.691, "urb2002_km2": 0.8032, "urb2024_km2": 1.0716, "crescimento_1977_2024_km2": 0.3806, "pct_urb_1977": 29.875, "pct_urb_2002": 34.7263, "pct_urb_2024": 46.3296, "pop_estimada": 7690, "densidade_pop_bairro": 3329.0, "dom_estima": 4576, "densidade0": 1980.95, "media_mora": 1.68, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0494928478543563, "area_urb_2024_por_1000_hab_km2": 0.13934980494148247, "hab_por_km2_urb_2024": 7176.185143710339, "dom_por_km2_urb_2024": 4270.250093318402, "crescimento_relativo_1977_2024_pct": 55.07959479015919, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Agronômica", "regiao_adm": "Região Central", "area_bairro_km2": 1.9746, "urb1977_km2": 1.4262, "urb2002_km2": 1.8294, "urb2024_km2": 1.8006, "crescimento_1977_2024_km2": 0.3743, "pct_urb_1977": 72.2307, "pct_urb_2002": 92.6462, "pct_urb_2024": 91.1884, "pop_estimada": 18675, "densidade_pop_bairro": 9479.69, "dom_estima": 7976, "densidade0": 4048.73, "media_mora": 2.34, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.020042838018741634, "area_urb_2024_por_1000_hab_km2": 0.09641767068273092, "hab_por_km2_urb_2024": 10371.542819060312, "dom_por_km2_urb_2024": 4429.634566255692, "crescimento_relativo_1977_2024_pct": 26.24456597952602, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Carvoeira", "regiao_adm": "Região Central", "area_bairro_km2": 0.9806, "urb1977_km2": 0.5161, "urb2002_km2": 0.8062, "urb2024_km2": 0.794, "crescimento_1977_2024_km2": 0.2779, "pct_urb_1977": 52.6285, "pct_urb_2002": 82.22, "pct_urb_2024": 80.9678, "pop_estimada": 10740, "densidade_pop_bairro": 10959.18, "dom_estima": 5788, "densidade0": 5906.12, "media_mora": 1.85, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.025875232774674115, "area_urb_2024_por_1000_hab_km2": 0.0739292364990689, "hab_por_km2_urb_2024": 13526.448362720403, "dom_por_km2_urb_2024": 7289.672544080604, "crescimento_relativo_1977_2024_pct": 53.84615384615385, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Trindade", "regiao_adm": "Região Central", "area_bairro_km2": 3.3206, "urb1977_km2": 2.4689, "urb2002_km2": 2.6676, "urb2024_km2": 2.6954, "crescimento_1977_2024_km2": 0.2265, "pct_urb_1977": 74.3498, "pct_urb_2002": 80.3366, "pct_urb_2024": 81.1721, "pop_estimada": 17865, "densidade_pop_bairro": 5381.02, "dom_estima": 9775, "densidade0": 2944.28, "media_mora": 1.83, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.012678421494542402, "area_urb_2024_por_1000_hab_km2": 0.1508760145535964, "hab_por_km2_urb_2024": 6627.958744527715, "dom_por_km2_urb_2024": 3626.548935222973, "crescimento_relativo_1977_2024_pct": 9.174126129045323, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Coqueiros", "regiao_adm": "Região Continental", "area_bairro_km2": 1.7715, "urb1977_km2": 1.4941, "urb2002_km2": 1.5291, "urb2024_km2": 1.6632, "crescimento_1977_2024_km2": 0.1691, "pct_urb_1977": 84.3425, "pct_urb_2002": 86.318, "pct_urb_2024": 93.8871, "pop_estimada": 13396, "densidade_pop_bairro": 7568.36, "dom_estima": 6399, "densidade0": 3615.25, "media_mora": 2.09, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.012623171095849506, "area_urb_2024_por_1000_hab_km2": 0.12415646461630338, "hab_por_km2_urb_2024": 8054.353054353054, "dom_por_km2_urb_2024": 3847.402597402597, "crescimento_relativo_1977_2024_pct": 11.317850210829263, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Estreito", "regiao_adm": "Região Continental", "area_bairro_km2": 1.5348, "urb1977_km2": 1.3882, "urb2002_km2": 1.4231, "urb2024_km2": 1.5348, "crescimento_1977_2024_km2": 0.1467, "pct_urb_1977": 90.4438, "pct_urb_2002": 92.7207, "pct_urb_2024": 100.0, "pop_estimada": 9290, "densidade_pop_bairro": 6071.89, "dom_estima": 4531, "densidade0": 2961.44, "media_mora": 2.05, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.01579117330462863, "area_urb_2024_por_1000_hab_km2": 0.16520990312163616, "hab_por_km2_urb_2024": 6052.905916080272, "dom_por_km2_urb_2024": 2952.1761793067503, "crescimento_relativo_1977_2024_pct": 10.567641550208903, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "José Mendes", "regiao_adm": "Região Central", "area_bairro_km2": 0.5595, "urb1977_km2": 0.335, "urb2002_km2": 0.5, "urb2024_km2": 0.4707, "crescimento_1977_2024_km2": 0.1357, "pct_urb_1977": 59.8663, "pct_urb_2002": 89.3567, "pct_urb_2024": 84.1248, "pop_estimada": 3492, "densidade_pop_bairro": 6235.71, "dom_estima": 1433, "densidade0": 2558.93, "media_mora": 2.44, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0388602520045819, "area_urb_2024_por_1000_hab_km2": 0.13479381443298968, "hab_por_km2_urb_2024": 7418.738049713193, "dom_por_km2_urb_2024": 3044.401954535798, "crescimento_relativo_1977_2024_pct": 40.50746268656716, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Costa da Lagoa", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 10.9807, "urb1977_km2": 0.1311, "urb2002_km2": 0.0808, "urb2024_km2": 0.2226, "crescimento_1977_2024_km2": 0.0916, "pct_urb_1977": 1.1936, "pct_urb_2002": 0.7358, "pct_urb_2024": 2.0274, "pop_estimada": 954, "densidade_pop_bairro": 86.96, "dom_estima": 665, "densidade0": 60.62, "media_mora": 1.43, "distrito_a": "Lagoa da Conceição", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.09601677148846961, "area_urb_2024_por_1000_hab_km2": 0.23333333333333334, "hab_por_km2_urb_2024": 4285.714285714286, "dom_por_km2_urb_2024": 2987.421383647799, "crescimento_relativo_1977_2024_pct": 69.8703279938978, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Daniela", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 1.5829, "urb1977_km2": 0.6014, "urb2002_km2": 0.7004, "urb2024_km2": 0.6798, "crescimento_1977_2024_km2": 0.0784, "pct_urb_1977": 37.9922, "pct_urb_2002": 44.2466, "pct_urb_2024": 42.9447, "pop_estimada": 1088, "densidade_pop_bairro": 688.61, "dom_estima": 1010, "densidade0": 639.24, "media_mora": 1.08, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.07205882352941176, "area_urb_2024_por_1000_hab_km2": 0.6248161764705882, "hab_por_km2_urb_2024": 1600.470726684319, "dom_por_km2_urb_2024": 1485.731097381583, "crescimento_relativo_1977_2024_pct": 13.036248752909877, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Praia do Forte", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 0.4449, "urb1977_km2": 0.0715, "urb2002_km2": 0.0287, "urb2024_km2": 0.1298, "crescimento_1977_2024_km2": 0.0583, "pct_urb_1977": 16.0728, "pct_urb_2002": 6.4547, "pct_urb_2024": 29.1843, "pop_estimada": 170, "densidade_pop_bairro": 386.36, "dom_estima": 173, "densidade0": 393.18, "media_mora": 0.98, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.34294117647058825, "area_urb_2024_por_1000_hab_km2": 0.7635294117647059, "hab_por_km2_urb_2024": 1309.7072419106319, "dom_por_km2_urb_2024": 1332.8197226502311, "crescimento_relativo_1977_2024_pct": 81.53846153846153, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Jardim Capoeiras", "regiao_adm": "Região Continental", "area_bairro_km2": 0.4702, "urb1977_km2": 0.4137, "urb2002_km2": 0.3779, "urb2024_km2": 0.4702, "crescimento_1977_2024_km2": 0.0565, "pct_urb_1977": 87.9788, "pct_urb_2002": 80.3742, "pct_urb_2024": 100.0, "pop_estimada": 1545, "densidade_pop_bairro": 3287.23, "dom_estima": 628, "densidade0": 1336.17, "media_mora": 2.46, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.036569579288025886, "area_urb_2024_por_1000_hab_km2": 0.304336569579288, "hab_por_km2_urb_2024": 3285.835814547001, "dom_por_km2_urb_2024": 1335.6018715440239, "crescimento_relativo_1977_2024_pct": 13.657239545564417, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Santa Mônica", "regiao_adm": "Região Central", "area_bairro_km2": 0.59, "urb1977_km2": 0.4861, "urb2002_km2": 0.4793, "urb2024_km2": 0.5261, "crescimento_1977_2024_km2": 0.04, "pct_urb_1977": 82.3797, "pct_urb_2002": 81.2355, "pct_urb_2024": 89.1623, "pop_estimada": 1372, "densidade_pop_bairro": 2325.42, "dom_estima": 625, "densidade0": 1059.32, "media_mora": 2.19, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.02915451895043732, "area_urb_2024_por_1000_hab_km2": 0.3834548104956268, "hab_por_km2_urb_2024": 2607.869226382817, "dom_por_km2_urb_2024": 1187.9870747006273, "crescimento_relativo_1977_2024_pct": 8.228759514503189, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Balneário", "regiao_adm": "Região Continental", "area_bairro_km2": 0.7078, "urb1977_km2": 0.6902, "urb2002_km2": 0.6865, "urb2024_km2": 0.7078, "crescimento_1977_2024_km2": 0.0176, "pct_urb_1977": 97.5107, "pct_urb_2002": 96.99, "pct_urb_2024": 100.0, "pop_estimada": 5674, "densidade_pop_bairro": 7991.55, "dom_estima": 2713, "densidade0": 3821.13, "media_mora": 2.09, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0031018681706027496, "area_urb_2024_por_1000_hab_km2": 0.12474444836094466, "hab_por_km2_urb_2024": 8016.388810398418, "dom_por_km2_urb_2024": 3833.003673354055, "crescimento_relativo_1977_2024_pct": 2.5499855114459575, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Abraão", "regiao_adm": "Região Continental", "area_bairro_km2": 0.8461, "urb1977_km2": 0.7514, "urb2002_km2": 0.6583, "urb2024_km2": 0.7677, "crescimento_1977_2024_km2": 0.0163, "pct_urb_1977": 88.8166, "pct_urb_2002": 77.8057, "pct_urb_2024": 90.7452, "pop_estimada": 7717, "densidade_pop_bairro": 9078.84, "dom_estima": 3696, "densidade0": 4348.24, "media_mora": 2.09, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0021122197745237783, "area_urb_2024_por_1000_hab_km2": 0.09948166385901258, "hab_por_km2_urb_2024": 10052.103686335808, "dom_por_km2_urb_2024": 4814.380617428683, "crescimento_relativo_1977_2024_pct": 2.1692840031940377, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Jardim Atlântico", "regiao_adm": "Região Continental", "area_bairro_km2": 1.7853, "urb1977_km2": 1.7731, "urb2002_km2": 1.7553, "urb2024_km2": 1.7853, "crescimento_1977_2024_km2": 0.0122, "pct_urb_1977": 99.3193, "pct_urb_2002": 98.3201, "pct_urb_2024": 100.0, "pop_estimada": 12773, "densidade_pop_bairro": 7175.84, "dom_estima": 5776, "densidade0": 3244.94, "media_mora": 2.21, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0009551397479057388, "area_urb_2024_por_1000_hab_km2": 0.1397713927816488, "hab_por_km2_urb_2024": 7154.539853245953, "dom_por_km2_urb_2024": 3235.310592057357, "crescimento_relativo_1977_2024_pct": 0.6880604590829622, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Bom Abrigo", "regiao_adm": "Região Continental", "area_bairro_km2": 0.1846, "urb1977_km2": 0.1756, "urb2002_km2": 0.1767, "urb2024_km2": 0.1846, "crescimento_1977_2024_km2": 0.009, "pct_urb_1977": 95.144, "pct_urb_2002": 95.7169, "pct_urb_2024": 100.0, "pop_estimada": 1339, "densidade_pop_bairro": 7438.89, "dom_estima": 626, "densidade0": 3477.78, "media_mora": 2.14, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026", "crescimento_por_1000_hab_km2": 0.006721433905899924, "area_urb_2024_por_1000_hab_km2": 0.13786407766990288, "hab_por_km2_urb_2024": 7253.521126760564, "dom_por_km2_urb_2024": 3391.1159263271943, "crescimento_relativo_1977_2024_pct": 5.125284738041002, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Itaguaçu", "regiao_adm": "Região Continental", "area_bairro_km2": 0.4715, "urb1977_km2": 0.4585, "urb2002_km2": 0.4584, "urb2024_km2": 0.4651, "crescimento_1977_2024_km2": 0.0066, "pct_urb_1977": 97.2446, "pct_urb_2002": 97.2155, "pct_urb_2024": 98.6436, "pop_estimada": 1761, "densidade_pop_bairro": 3746.81, "dom_estima": 864, "densidade0": 1838.3, "media_mora": 2.04, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0037478705281090287, "area_urb_2024_por_1000_hab_km2": 0.26411130039750147, "hab_por_km2_urb_2024": 3786.282519888196, "dom_por_km2_urb_2024": 1857.6650182756396, "crescimento_relativo_1977_2024_pct": 1.4394765539803707, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Monte Cristo", "regiao_adm": "Região Continental", "area_bairro_km2": 0.5887, "urb1977_km2": 0.5885, "urb2002_km2": 0.5087, "urb2024_km2": 0.5887, "crescimento_1977_2024_km2": 0.0002, "pct_urb_1977": 99.973, "pct_urb_2002": 86.408, "pct_urb_2024": 100.0, "pop_estimada": 11219, "densidade_pop_bairro": 19015.25, "dom_estima": 4364, "densidade0": 7396.61, "media_mora": 2.57, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 1.7826900793297086e-05, "area_urb_2024_por_1000_hab_km2": 0.052473482485069965, "hab_por_km2_urb_2024": 19057.244776626467, "dom_por_km2_urb_2024": 7412.94377441821, "crescimento_relativo_1977_2024_pct": 0.033984706881903144, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Coloninha", "regiao_adm": "Região Continental", "area_bairro_km2": 0.5962, "urb1977_km2": 0.5962, "urb2002_km2": 0.5962, "urb2024_km2": 0.5962, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 4517, "densidade_pop_bairro": 3781.67, "dom_estima": 2269, "densidade0": 3781.67, "media_mora": 1.99, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.13199025902147443, "hab_por_km2_urb_2024": 7576.3166722576325, "dom_por_km2_urb_2024": 3805.7698758805773, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Canto", "regiao_adm": "Região Continental", "area_bairro_km2": 0.6805, "urb1977_km2": 0.6805, "urb2002_km2": 0.6805, "urb2024_km2": 0.6805, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 6509, "densidade_pop_bairro": 9572.06, "dom_estima": 3088, "densidade0": 4541.18, "media_mora": 2.11, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.10454754954678137, "hab_por_km2_urb_2024": 9565.025716385011, "dom_por_km2_urb_2024": 4537.839823659075, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Capoeiras", "regiao_adm": "Região Continental", "area_bairro_km2": 2.3961, "urb1977_km2": 2.3961, "urb2002_km2": 2.3961, "urb2024_km2": 2.3961, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 17278, "densidade_pop_bairro": 7229.29, "dom_estima": 8121, "densidade0": 3397.91, "media_mora": 2.13, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.13867924528301886, "hab_por_km2_urb_2024": 7210.884353741496, "dom_por_km2_urb_2024": 3389.257543508201, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Moçambique", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 13.5146, "urb1977_km2": 0.0129, "urb2002_km2": 0.0, "urb2024_km2": 0.0, "crescimento_1977_2024_km2": -0.0129, "pct_urb_1977": 0.0952, "pct_urb_2002": 0.0, "pct_urb_2024": 0.0, "pop_estimada": 0, "densidade_pop_bairro": 0.0, "dom_estima": 0, "densidade0": 0.0, "media_mora": 0.0, "distrito_a": "Rio Vermelho", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": null, "area_urb_2024_por_1000_hab_km2": null, "hab_por_km2_urb_2024": null, "dom_por_km2_urb_2024": null, "crescimento_relativo_1977_2024_pct": -100.0, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}], "stats": {"bairros": 56, "pop_total": 537211.0, "dom_total": 285000.0, "densidade_media_ponderada": 1314.6504415563948, "crescimento_total": 66.8475, "corr_pop_crescimento": 0.6003151930322027, "corr_densidade_crescimento": -0.29689959945258965, "corr_densidade_pct_urb": 0.7926244796238133, "top_growth_bairro": "Campeche", "top_growth_valor": 8.8811, "top_density_bairro": "Monte Cristo", "top_density_valor": 19015.25}, "topGrowth": [{"bairro": "Campeche", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 15.3917, "urb1977_km2": 0.9542, "urb2002_km2": 5.0052, "urb2024_km2": 9.8353, "crescimento_1977_2024_km2": 8.8811, "pct_urb_1977": 6.1996, "pct_urb_2002": 32.5188, "pct_urb_2024": 63.9001, "pop_estimada": 30934, "densidade_pop_bairro": 2011.31, "dom_estima": 16678, "densidade0": 1084.39, "media_mora": 1.85, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.28709833839787935, "area_urb_2024_por_1000_hab_km2": 0.31794465636516456, "hab_por_km2_urb_2024": 3145.20146818094, "dom_por_km2_urb_2024": 1695.7286508799934, "crescimento_relativo_1977_2024_pct": 930.7377908195347, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Rio Vermelho", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 18.0295, "urb1977_km2": 0.6246, "urb2002_km2": 3.2574, "urb2024_km2": 8.3665, "crescimento_1977_2024_km2": 7.7419, "pct_urb_1977": 3.4643, "pct_urb_2002": 18.0671, "pct_urb_2024": 46.4046, "pop_estimada": 30751, "densidade_pop_bairro": 1707.44, "dom_estima": 14048, "densidade0": 780.01, "media_mora": 2.19, "distrito_a": "Rio Vermelho", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2517609183441189, "area_urb_2024_por_1000_hab_km2": 0.2720724529283601, "hab_por_km2_urb_2024": 3675.491543656248, "dom_por_km2_urb_2024": 1679.0772724556266, "crescimento_relativo_1977_2024_pct": 1239.497278258085, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Ingleses", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 16.6992, "urb1977_km2": 1.6509, "urb2002_km2": 5.8764, "urb2024_km2": 7.955, "crescimento_1977_2024_km2": 6.3041, "pct_urb_1977": 9.8864, "pct_urb_2002": 35.1896, "pct_urb_2024": 47.6372, "pop_estimada": 46320, "densidade_pop_bairro": 2775.31, "dom_estima": 30137, "densidade0": 1805.69, "media_mora": 1.54, "distrito_a": "Ingleses", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.13609887737478413, "area_urb_2024_por_1000_hab_km2": 0.1717400690846287, "hab_por_km2_urb_2024": 5822.752985543683, "dom_por_km2_urb_2024": 3788.4349465744813, "crescimento_relativo_1977_2024_pct": 381.85838027742443, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Rio Tavares", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 17.738, "urb1977_km2": 0.7428, "urb2002_km2": 2.3259, "urb2024_km2": 4.1193, "crescimento_1977_2024_km2": 3.3765, "pct_urb_1977": 4.1874, "pct_urb_2002": 13.1123, "pct_urb_2024": 23.223, "pop_estimada": 14936, "densidade_pop_bairro": 842.41, "dom_estima": 7667, "densidade0": 432.43, "media_mora": 1.95, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2260645420460632, "area_urb_2024_por_1000_hab_km2": 0.2757967327262989, "hab_por_km2_urb_2024": 3625.858762411089, "dom_por_km2_urb_2024": 1861.238559949506, "crescimento_relativo_1977_2024_pct": 454.5638126009693, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Carianos", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 21.3581, "urb1977_km2": 2.0648, "urb2002_km2": 3.9107, "urb2024_km2": 5.2784, "crescimento_1977_2024_km2": 3.2135, "pct_urb_1977": 9.6676, "pct_urb_2002": 18.3103, "pct_urb_2024": 24.7137, "pop_estimada": 9577, "densidade_pop_bairro": 448.78, "dom_estima": 3930, "densidade0": 184.16, "media_mora": 2.44, "distrito_a": "Tapera da Base", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3355434896105252, "area_urb_2024_por_1000_hab_km2": 0.5511538059935263, "hab_por_km2_urb_2024": 1814.3755683540464, "dom_por_km2_urb_2024": 744.5438011518642, "crescimento_relativo_1977_2024_pct": 155.6325067803177, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Jurerê", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 12.8739, "urb1977_km2": 0.9254, "urb2002_km2": 3.7513, "urb2024_km2": 3.649, "crescimento_1977_2024_km2": 2.7235, "pct_urb_1977": 7.1885, "pct_urb_2002": 29.1384, "pct_urb_2024": 28.344, "pop_estimada": 8134, "densidade_pop_bairro": 632.5, "dom_estima": 7501, "densidade0": 583.28, "media_mora": 1.08, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3348291123678387, "area_urb_2024_por_1000_hab_km2": 0.44861076960904844, "hab_por_km2_urb_2024": 2229.1038640723486, "dom_por_km2_urb_2024": 2055.6316799123047, "crescimento_relativo_1977_2024_pct": 294.30516533390966, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Ratones", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 26.5297, "urb1977_km2": 0.4699, "urb2002_km2": 1.2486, "urb2024_km2": 3.0291, "crescimento_1977_2024_km2": 2.5592, "pct_urb_1977": 1.7711, "pct_urb_2002": 4.7063, "pct_urb_2024": 11.4177, "pop_estimada": 3925, "densidade_pop_bairro": 148.06, "dom_estima": 1663, "densidade0": 62.73, "media_mora": 2.36, "distrito_a": "Ratones", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.6520254777070065, "area_urb_2024_por_1000_hab_km2": 0.7717452229299363, "hab_por_km2_urb_2024": 1295.7644184741341, "dom_por_km2_urb_2024": 549.007956158595, "crescimento_relativo_1977_2024_pct": 544.6265162800596, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Canasvieiras", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 14.4314, "urb1977_km2": 2.0861, "urb2002_km2": 3.3326, "urb2024_km2": 4.5129, "crescimento_1977_2024_km2": 2.4268, "pct_urb_1977": 14.4555, "pct_urb_2002": 23.0928, "pct_urb_2024": 31.2715, "pop_estimada": 15979, "densidade_pop_bairro": 1108.11, "dom_estima": 12381, "densidade0": 858.6, "media_mora": 1.29, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.15187433506477252, "area_urb_2024_por_1000_hab_km2": 0.2824269353526504, "hab_por_km2_urb_2024": 3540.7387710784637, "dom_por_km2_urb_2024": 2743.4687229940837, "crescimento_relativo_1977_2024_pct": 116.33191122189731, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Cachoeira do Bom Jesus", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 9.0889, "urb1977_km2": 0.8879, "urb2002_km2": 1.8129, "urb2024_km2": 3.2036, "crescimento_1977_2024_km2": 2.3157, "pct_urb_1977": 9.7689, "pct_urb_2002": 19.9466, "pct_urb_2024": 35.2474, "pop_estimada": 6616, "densidade_pop_bairro": 728.63, "dom_estima": 4840, "densidade0": 533.04, "media_mora": 1.37, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3500151148730351, "area_urb_2024_por_1000_hab_km2": 0.4842200725513905, "hab_por_km2_urb_2024": 2065.176676239231, "dom_por_km2_urb_2024": 1510.8003496066926, "crescimento_relativo_1977_2024_pct": 260.8063971167924, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Lagoa da Conceição", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 19.6589, "urb1977_km2": 2.122, "urb2002_km2": 3.4981, "urb2024_km2": 4.1935, "crescimento_1977_2024_km2": 2.0715, "pct_urb_1977": 10.7943, "pct_urb_2002": 17.7942, "pct_urb_2024": 21.3313, "pop_estimada": 12468, "densidade_pop_bairro": 634.83, "dom_estima": 7228, "densidade0": 368.02, "media_mora": 1.72, "distrito_a": "Lagoa da Conceição", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.1661453320500481, "area_urb_2024_por_1000_hab_km2": 0.3363410330445942, "hab_por_km2_urb_2024": 2973.172767378085, "dom_por_km2_urb_2024": 1723.6198879217836, "crescimento_relativo_1977_2024_pct": 97.62016965127238, "perfil_socio_urbano": "Alta expansão e baixa densidade"}], "topDensity": [{"bairro": "Monte Cristo", "regiao_adm": "Região Continental", "area_bairro_km2": 0.5887, "urb1977_km2": 0.5885, "urb2002_km2": 0.5087, "urb2024_km2": 0.5887, "crescimento_1977_2024_km2": 0.0002, "pct_urb_1977": 99.973, "pct_urb_2002": 86.408, "pct_urb_2024": 100.0, "pop_estimada": 11219, "densidade_pop_bairro": 19015.25, "dom_estima": 4364, "densidade0": 7396.61, "media_mora": 2.57, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 1.7826900793297086e-05, "area_urb_2024_por_1000_hab_km2": 0.052473482485069965, "hab_por_km2_urb_2024": 19057.244776626467, "dom_por_km2_urb_2024": 7412.94377441821, "crescimento_relativo_1977_2024_pct": 0.033984706881903144, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Carvoeira", "regiao_adm": "Região Central", "area_bairro_km2": 0.9806, "urb1977_km2": 0.5161, "urb2002_km2": 0.8062, "urb2024_km2": 0.794, "crescimento_1977_2024_km2": 0.2779, "pct_urb_1977": 52.6285, "pct_urb_2002": 82.22, "pct_urb_2024": 80.9678, "pop_estimada": 10740, "densidade_pop_bairro": 10959.18, "dom_estima": 5788, "densidade0": 5906.12, "media_mora": 1.85, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.025875232774674115, "area_urb_2024_por_1000_hab_km2": 0.0739292364990689, "hab_por_km2_urb_2024": 13526.448362720403, "dom_por_km2_urb_2024": 7289.672544080604, "crescimento_relativo_1977_2024_pct": 53.84615384615385, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Canto", "regiao_adm": "Região Continental", "area_bairro_km2": 0.6805, "urb1977_km2": 0.6805, "urb2002_km2": 0.6805, "urb2024_km2": 0.6805, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 6509, "densidade_pop_bairro": 9572.06, "dom_estima": 3088, "densidade0": 4541.18, "media_mora": 2.11, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.10454754954678137, "hab_por_km2_urb_2024": 9565.025716385011, "dom_por_km2_urb_2024": 4537.839823659075, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Agronômica", "regiao_adm": "Região Central", "area_bairro_km2": 1.9746, "urb1977_km2": 1.4262, "urb2002_km2": 1.8294, "urb2024_km2": 1.8006, "crescimento_1977_2024_km2": 0.3743, "pct_urb_1977": 72.2307, "pct_urb_2002": 92.6462, "pct_urb_2024": 91.1884, "pop_estimada": 18675, "densidade_pop_bairro": 9479.69, "dom_estima": 7976, "densidade0": 4048.73, "media_mora": 2.34, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.020042838018741634, "area_urb_2024_por_1000_hab_km2": 0.09641767068273092, "hab_por_km2_urb_2024": 10371.542819060312, "dom_por_km2_urb_2024": 4429.634566255692, "crescimento_relativo_1977_2024_pct": 26.24456597952602, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Abraão", "regiao_adm": "Região Continental", "area_bairro_km2": 0.8461, "urb1977_km2": 0.7514, "urb2002_km2": 0.6583, "urb2024_km2": 0.7677, "crescimento_1977_2024_km2": 0.0163, "pct_urb_1977": 88.8166, "pct_urb_2002": 77.8057, "pct_urb_2024": 90.7452, "pop_estimada": 7717, "densidade_pop_bairro": 9078.84, "dom_estima": 3696, "densidade0": 4348.24, "media_mora": 2.09, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0021122197745237783, "area_urb_2024_por_1000_hab_km2": 0.09948166385901258, "hab_por_km2_urb_2024": 10052.103686335808, "dom_por_km2_urb_2024": 4814.380617428683, "crescimento_relativo_1977_2024_pct": 2.1692840031940377, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Balneário", "regiao_adm": "Região Continental", "area_bairro_km2": 0.7078, "urb1977_km2": 0.6902, "urb2002_km2": 0.6865, "urb2024_km2": 0.7078, "crescimento_1977_2024_km2": 0.0176, "pct_urb_1977": 97.5107, "pct_urb_2002": 96.99, "pct_urb_2024": 100.0, "pop_estimada": 5674, "densidade_pop_bairro": 7991.55, "dom_estima": 2713, "densidade0": 3821.13, "media_mora": 2.09, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0031018681706027496, "area_urb_2024_por_1000_hab_km2": 0.12474444836094466, "hab_por_km2_urb_2024": 8016.388810398418, "dom_por_km2_urb_2024": 3833.003673354055, "crescimento_relativo_1977_2024_pct": 2.5499855114459575, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Centro", "regiao_adm": "Região Central", "area_bairro_km2": 5.3939, "urb1977_km2": 4.1957, "urb2002_km2": 4.6351, "urb2024_km2": 4.6659, "crescimento_1977_2024_km2": 0.4702, "pct_urb_1977": 77.7863, "pct_urb_2002": 85.9322, "pct_urb_2024": 86.5038, "pop_estimada": 42308, "densidade_pop_bairro": 7849.35, "dom_estima": 23368, "densidade0": 4335.44, "media_mora": 1.81, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.01111373735463742, "area_urb_2024_por_1000_hab_km2": 0.11028410702467618, "hab_por_km2_urb_2024": 9067.48965901541, "dom_por_km2_urb_2024": 5008.251355579846, "crescimento_relativo_1977_2024_pct": 11.206711633338893, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Coqueiros", "regiao_adm": "Região Continental", "area_bairro_km2": 1.7715, "urb1977_km2": 1.4941, "urb2002_km2": 1.5291, "urb2024_km2": 1.6632, "crescimento_1977_2024_km2": 0.1691, "pct_urb_1977": 84.3425, "pct_urb_2002": 86.318, "pct_urb_2024": 93.8871, "pop_estimada": 13396, "densidade_pop_bairro": 7568.36, "dom_estima": 6399, "densidade0": 3615.25, "media_mora": 2.09, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.012623171095849506, "area_urb_2024_por_1000_hab_km2": 0.12415646461630338, "hab_por_km2_urb_2024": 8054.353054353054, "dom_por_km2_urb_2024": 3847.402597402597, "crescimento_relativo_1977_2024_pct": 11.317850210829263, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Bom Abrigo", "regiao_adm": "Região Continental", "area_bairro_km2": 0.1846, "urb1977_km2": 0.1756, "urb2002_km2": 0.1767, "urb2024_km2": 0.1846, "crescimento_1977_2024_km2": 0.009, "pct_urb_1977": 95.144, "pct_urb_2002": 95.7169, "pct_urb_2024": 100.0, "pop_estimada": 1339, "densidade_pop_bairro": 7438.89, "dom_estima": 626, "densidade0": 3477.78, "media_mora": 2.14, "distrito_a": "Coqueiros", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026", "crescimento_por_1000_hab_km2": 0.006721433905899924, "area_urb_2024_por_1000_hab_km2": 0.13786407766990288, "hab_por_km2_urb_2024": 7253.521126760564, "dom_por_km2_urb_2024": 3391.1159263271943, "crescimento_relativo_1977_2024_pct": 5.125284738041002, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Capoeiras", "regiao_adm": "Região Continental", "area_bairro_km2": 2.3961, "urb1977_km2": 2.3961, "urb2002_km2": 2.3961, "urb2024_km2": 2.3961, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 17278, "densidade_pop_bairro": 7229.29, "dom_estima": 8121, "densidade0": 3397.91, "media_mora": 2.13, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.13867924528301886, "hab_por_km2_urb_2024": 7210.884353741496, "dom_por_km2_urb_2024": 3389.257543508201, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}], "topPop": [{"bairro": "Ingleses", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 16.6992, "urb1977_km2": 1.6509, "urb2002_km2": 5.8764, "urb2024_km2": 7.955, "crescimento_1977_2024_km2": 6.3041, "pct_urb_1977": 9.8864, "pct_urb_2002": 35.1896, "pct_urb_2024": 47.6372, "pop_estimada": 46320, "densidade_pop_bairro": 2775.31, "dom_estima": 30137, "densidade0": 1805.69, "media_mora": 1.54, "distrito_a": "Ingleses", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.13609887737478413, "area_urb_2024_por_1000_hab_km2": 0.1717400690846287, "hab_por_km2_urb_2024": 5822.752985543683, "dom_por_km2_urb_2024": 3788.4349465744813, "crescimento_relativo_1977_2024_pct": 381.85838027742443, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Centro", "regiao_adm": "Região Central", "area_bairro_km2": 5.3939, "urb1977_km2": 4.1957, "urb2002_km2": 4.6351, "urb2024_km2": 4.6659, "crescimento_1977_2024_km2": 0.4702, "pct_urb_1977": 77.7863, "pct_urb_2002": 85.9322, "pct_urb_2024": 86.5038, "pop_estimada": 42308, "densidade_pop_bairro": 7849.35, "dom_estima": 23368, "densidade0": 4335.44, "media_mora": 1.81, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.01111373735463742, "area_urb_2024_por_1000_hab_km2": 0.11028410702467618, "hab_por_km2_urb_2024": 9067.48965901541, "dom_por_km2_urb_2024": 5008.251355579846, "crescimento_relativo_1977_2024_pct": 11.206711633338893, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Campeche", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 15.3917, "urb1977_km2": 0.9542, "urb2002_km2": 5.0052, "urb2024_km2": 9.8353, "crescimento_1977_2024_km2": 8.8811, "pct_urb_1977": 6.1996, "pct_urb_2002": 32.5188, "pct_urb_2024": 63.9001, "pop_estimada": 30934, "densidade_pop_bairro": 2011.31, "dom_estima": 16678, "densidade0": 1084.39, "media_mora": 1.85, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.28709833839787935, "area_urb_2024_por_1000_hab_km2": 0.31794465636516456, "hab_por_km2_urb_2024": 3145.20146818094, "dom_por_km2_urb_2024": 1695.7286508799934, "crescimento_relativo_1977_2024_pct": 930.7377908195347, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Rio Vermelho", "regiao_adm": "Região Leste da Ilha", "area_bairro_km2": 18.0295, "urb1977_km2": 0.6246, "urb2002_km2": 3.2574, "urb2024_km2": 8.3665, "crescimento_1977_2024_km2": 7.7419, "pct_urb_1977": 3.4643, "pct_urb_2002": 18.0671, "pct_urb_2024": 46.4046, "pop_estimada": 30751, "densidade_pop_bairro": 1707.44, "dom_estima": 14048, "densidade0": 780.01, "media_mora": 2.19, "distrito_a": "Rio Vermelho", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2517609183441189, "area_urb_2024_por_1000_hab_km2": 0.2720724529283601, "hab_por_km2_urb_2024": 3675.491543656248, "dom_por_km2_urb_2024": 1679.0772724556266, "crescimento_relativo_1977_2024_pct": 1239.497278258085, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Itacorubi", "regiao_adm": "Região Central", "area_bairro_km2": 12.8061, "urb1977_km2": 2.3441, "urb2002_km2": 2.8145, "urb2024_km2": 3.3789, "crescimento_1977_2024_km2": 1.0348, "pct_urb_1977": 18.3044, "pct_urb_2002": 21.9779, "pct_urb_2024": 26.3851, "pop_estimada": 23600, "densidade_pop_bairro": 1843.75, "dom_estima": 12348, "densidade0": 964.69, "media_mora": 1.91, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.04384745762711864, "area_urb_2024_por_1000_hab_km2": 0.1431737288135593, "hab_por_km2_urb_2024": 6984.521589866525, "dom_por_km2_urb_2024": 3654.4437538844004, "crescimento_relativo_1977_2024_pct": 44.144874365428095, "perfil_socio_urbano": "Alta expansão e alta densidade"}, {"bairro": "Agronômica", "regiao_adm": "Região Central", "area_bairro_km2": 1.9746, "urb1977_km2": 1.4262, "urb2002_km2": 1.8294, "urb2024_km2": 1.8006, "crescimento_1977_2024_km2": 0.3743, "pct_urb_1977": 72.2307, "pct_urb_2002": 92.6462, "pct_urb_2024": 91.1884, "pop_estimada": 18675, "densidade_pop_bairro": 9479.69, "dom_estima": 7976, "densidade0": 4048.73, "media_mora": 2.34, "distrito_a": "Sede", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.020042838018741634, "area_urb_2024_por_1000_hab_km2": 0.09641767068273092, "hab_por_km2_urb_2024": 10371.542819060312, "dom_por_km2_urb_2024": 4429.634566255692, "crescimento_relativo_1977_2024_pct": 26.24456597952602, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Trindade", "regiao_adm": "Região Central", "area_bairro_km2": 3.3206, "urb1977_km2": 2.4689, "urb2002_km2": 2.6676, "urb2024_km2": 2.6954, "crescimento_1977_2024_km2": 0.2265, "pct_urb_1977": 74.3498, "pct_urb_2002": 80.3366, "pct_urb_2024": 81.1721, "pop_estimada": 17865, "densidade_pop_bairro": 5381.02, "dom_estima": 9775, "densidade0": 2944.28, "media_mora": 1.83, "distrito_a": "Trindade", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.012678421494542402, "area_urb_2024_por_1000_hab_km2": 0.1508760145535964, "hab_por_km2_urb_2024": 6627.958744527715, "dom_por_km2_urb_2024": 3626.548935222973, "crescimento_relativo_1977_2024_pct": 9.174126129045323, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Capoeiras", "regiao_adm": "Região Continental", "area_bairro_km2": 2.3961, "urb1977_km2": 2.3961, "urb2002_km2": 2.3961, "urb2024_km2": 2.3961, "crescimento_1977_2024_km2": 0.0, "pct_urb_1977": 100.0, "pct_urb_2002": 100.0, "pct_urb_2024": 100.0, "pop_estimada": 17278, "densidade_pop_bairro": 7229.29, "dom_estima": 8121, "densidade0": 3397.91, "media_mora": 2.13, "distrito_a": "Estreito", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.0, "area_urb_2024_por_1000_hab_km2": 0.13867924528301886, "hab_por_km2_urb_2024": 7210.884353741496, "dom_por_km2_urb_2024": 3389.257543508201, "crescimento_relativo_1977_2024_pct": 0.0, "perfil_socio_urbano": "Baixa expansão e alta densidade"}, {"bairro": "Canasvieiras", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 14.4314, "urb1977_km2": 2.0861, "urb2002_km2": 3.3326, "urb2024_km2": 4.5129, "crescimento_1977_2024_km2": 2.4268, "pct_urb_1977": 14.4555, "pct_urb_2002": 23.0928, "pct_urb_2024": 31.2715, "pop_estimada": 15979, "densidade_pop_bairro": 1108.11, "dom_estima": 12381, "densidade0": 858.6, "media_mora": 1.29, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.15187433506477252, "area_urb_2024_por_1000_hab_km2": 0.2824269353526504, "hab_por_km2_urb_2024": 3540.7387710784637, "dom_por_km2_urb_2024": 2743.4687229940837, "crescimento_relativo_1977_2024_pct": 116.33191122189731, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Rio Tavares", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 17.738, "urb1977_km2": 0.7428, "urb2002_km2": 2.3259, "urb2024_km2": 4.1193, "crescimento_1977_2024_km2": 3.3765, "pct_urb_1977": 4.1874, "pct_urb_2002": 13.1123, "pct_urb_2024": 23.223, "pop_estimada": 14936, "densidade_pop_bairro": 842.41, "dom_estima": 7667, "densidade0": 432.43, "media_mora": 1.95, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.2260645420460632, "area_urb_2024_por_1000_hab_km2": 0.2757967327262989, "hab_por_km2_urb_2024": 3625.858762411089, "dom_por_km2_urb_2024": 1861.238559949506, "crescimento_relativo_1977_2024_pct": 454.5638126009693, "perfil_socio_urbano": "Alta expansão e baixa densidade"}], "topPerCapita": [{"bairro": "Praia Brava", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 2.5819, "urb1977_km2": 0.0, "urb2002_km2": 0.3529, "urb2024_km2": 0.4414, "crescimento_1977_2024_km2": 0.4414, "pct_urb_1977": 0.0, "pct_urb_2002": 13.6675, "pct_urb_2024": 17.0972, "pop_estimada": 349, "densidade_pop_bairro": 135.27, "dom_estima": 1311, "densidade0": 508.14, "media_mora": 0.27, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 1.264756446991404, "area_urb_2024_por_1000_hab_km2": 1.264756446991404, "hab_por_km2_urb_2024": 790.666062528319, "dom_por_km2_urb_2024": 2970.0951517897597, "crescimento_relativo_1977_2024_pct": null, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Ratones", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 26.5297, "urb1977_km2": 0.4699, "urb2002_km2": 1.2486, "urb2024_km2": 3.0291, "crescimento_1977_2024_km2": 2.5592, "pct_urb_1977": 1.7711, "pct_urb_2002": 4.7063, "pct_urb_2024": 11.4177, "pop_estimada": 3925, "densidade_pop_bairro": 148.06, "dom_estima": 1663, "densidade0": 62.73, "media_mora": 2.36, "distrito_a": "Ratones", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.6520254777070065, "area_urb_2024_por_1000_hab_km2": 0.7717452229299363, "hab_por_km2_urb_2024": 1295.7644184741341, "dom_por_km2_urb_2024": 549.007956158595, "crescimento_relativo_1977_2024_pct": 544.6265162800596, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Santo Antônio de Lisboa", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 14.3196, "urb1977_km2": 0.4848, "urb2002_km2": 1.3697, "urb2024_km2": 2.2261, "crescimento_1977_2024_km2": 1.7413, "pct_urb_1977": 3.3859, "pct_urb_2002": 9.5653, "pct_urb_2024": 15.546, "pop_estimada": 2857, "densidade_pop_bairro": 199.65, "dom_estima": 1351, "densidade0": 94.41, "media_mora": 2.11, "distrito_a": "Santo Antônio de Lisboa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.6094854742737137, "area_urb_2024_por_1000_hab_km2": 0.7791739586979349, "hab_por_km2_urb_2024": 1283.4104487669017, "dom_por_km2_urb_2024": 606.8909752481918, "crescimento_relativo_1977_2024_pct": 359.17904290429044, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Cacupé", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 1.8894, "urb1977_km2": 0.2885, "urb2002_km2": 0.7039, "urb2024_km2": 1.0627, "crescimento_1977_2024_km2": 0.7742, "pct_urb_1977": 15.2709, "pct_urb_2002": 37.2523, "pct_urb_2024": 56.2447, "pop_estimada": 1494, "densidade_pop_bairro": 790.48, "dom_estima": 692, "densidade0": 366.14, "media_mora": 2.16, "distrito_a": "Santo Antônio de Lisboa", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.5182061579651941, "area_urb_2024_por_1000_hab_km2": 0.7113119143239626, "hab_por_km2_urb_2024": 1405.853015902889, "dom_por_km2_urb_2024": 651.1715441799191, "crescimento_relativo_1977_2024_pct": 268.35355285961873, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Vargem Pequena", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 5.8564, "urb1977_km2": 0.1494, "urb2002_km2": 0.5026, "urb2024_km2": 1.103, "crescimento_1977_2024_km2": 0.9536, "pct_urb_1977": 2.5508, "pct_urb_2002": 8.5822, "pct_urb_2024": 18.8342, "pop_estimada": 1898, "densidade_pop_bairro": 324.44, "dom_estima": 848, "densidade0": 144.96, "media_mora": 2.24, "distrito_a": "Ratones", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.5024236037934668, "area_urb_2024_por_1000_hab_km2": 0.5811380400421496, "hab_por_km2_urb_2024": 1720.7615593834996, "dom_por_km2_urb_2024": 768.8123300090662, "crescimento_relativo_1977_2024_pct": 638.2864792503347, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Cachoeira do Bom Jesus", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 9.0889, "urb1977_km2": 0.8879, "urb2002_km2": 1.8129, "urb2024_km2": 3.2036, "crescimento_1977_2024_km2": 2.3157, "pct_urb_1977": 9.7689, "pct_urb_2002": 19.9466, "pct_urb_2024": 35.2474, "pop_estimada": 6616, "densidade_pop_bairro": 728.63, "dom_estima": 4840, "densidade0": 533.04, "media_mora": 1.37, "distrito_a": "Cachoeira do Bom Jesus", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3500151148730351, "area_urb_2024_por_1000_hab_km2": 0.4842200725513905, "hab_por_km2_urb_2024": 2065.176676239231, "dom_por_km2_urb_2024": 1510.8003496066926, "crescimento_relativo_1977_2024_pct": 260.8063971167924, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Praia do Forte", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 0.4449, "urb1977_km2": 0.0715, "urb2002_km2": 0.0287, "urb2024_km2": 0.1298, "crescimento_1977_2024_km2": 0.0583, "pct_urb_1977": 16.0728, "pct_urb_2002": 6.4547, "pct_urb_2024": 29.1843, "pop_estimada": 170, "densidade_pop_bairro": 386.36, "dom_estima": 173, "densidade0": 393.18, "media_mora": 0.98, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.34294117647058825, "area_urb_2024_por_1000_hab_km2": 0.7635294117647059, "hab_por_km2_urb_2024": 1309.7072419106319, "dom_por_km2_urb_2024": 1332.8197226502311, "crescimento_relativo_1977_2024_pct": 81.53846153846153, "perfil_socio_urbano": "Baixa expansão e baixa densidade"}, {"bairro": "Carianos", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 21.3581, "urb1977_km2": 2.0648, "urb2002_km2": 3.9107, "urb2024_km2": 5.2784, "crescimento_1977_2024_km2": 3.2135, "pct_urb_1977": 9.6676, "pct_urb_2002": 18.3103, "pct_urb_2024": 24.7137, "pop_estimada": 9577, "densidade_pop_bairro": 448.78, "dom_estima": 3930, "densidade0": 184.16, "media_mora": 2.44, "distrito_a": "Tapera da Base", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3355434896105252, "area_urb_2024_por_1000_hab_km2": 0.5511538059935263, "hab_por_km2_urb_2024": 1814.3755683540464, "dom_por_km2_urb_2024": 744.5438011518642, "crescimento_relativo_1977_2024_pct": 155.6325067803177, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Jurerê", "regiao_adm": "Região Norte da Ilha", "area_bairro_km2": 12.8739, "urb1977_km2": 0.9254, "urb2002_km2": 3.7513, "urb2024_km2": 3.649, "crescimento_1977_2024_km2": 2.7235, "pct_urb_1977": 7.1885, "pct_urb_2002": 29.1384, "pct_urb_2024": 28.344, "pop_estimada": 8134, "densidade_pop_bairro": 632.5, "dom_estima": 7501, "densidade0": 583.28, "media_mora": 1.08, "distrito_a": "Canasvieiras", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.3348291123678387, "area_urb_2024_por_1000_hab_km2": 0.44861076960904844, "hab_por_km2_urb_2024": 2229.1038640723486, "dom_por_km2_urb_2024": 2055.6316799123047, "crescimento_relativo_1977_2024_pct": 294.30516533390966, "perfil_socio_urbano": "Alta expansão e baixa densidade"}, {"bairro": "Campeche", "regiao_adm": "Região Sul da Ilha", "area_bairro_km2": 15.3917, "urb1977_km2": 0.9542, "urb2002_km2": 5.0052, "urb2024_km2": 9.8353, "crescimento_1977_2024_km2": 8.8811, "pct_urb_1977": 6.1996, "pct_urb_2002": 32.5188, "pct_urb_2024": 63.9001, "pop_estimada": 30934, "densidade_pop_bairro": 2011.31, "dom_estima": 16678, "densidade0": 1084.39, "media_mora": 1.85, "distrito_a": "Campeche", "legislacao": "Decreto Municipal nº 29.142, de 10 de abril de 2026.", "crescimento_por_1000_hab_km2": 0.28709833839787935, "area_urb_2024_por_1000_hab_km2": 0.31794465636516456, "hab_por_km2_urb_2024": 3145.20146818094, "dom_por_km2_urb_2024": 1695.7286508799934, "crescimento_relativo_1977_2024_pct": 930.7377908195347, "perfil_socio_urbano": "Alta expansão e alta densidade"}]};
+const fmt = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+const cssVar = name => getComputedStyle(document.body).getPropertyValue(name).trim();
+const chartConfig = name => ({
+  responsive: true,
+  displayModeBar: true,
+  displaylogo: false,
+  toImageButtonOptions: { format: 'png', filename: name, height: 900, width: 1400, scale: 2 }
+});
+const baseLayout = extra => ({
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  font: { family: 'Arial, sans-serif', color: cssVar('--ink') },
+  margin: { l: 76, r: 34, t: 48, b: 90 },
+  ...extra
+});
+const pastel = ['#94aee6', '#88c9df', '#75b7a8', '#b6d98b', '#e8cf75', '#d7b6e6', '#eda7a0', '#9fd3c7', '#f2cf7e', '#b8c6ef'];
+const pastelSoft = ['#d9e9fb', '#d7f0fa', '#d8f3ef', '#dff3e3', '#f1e6a8', '#e7def7', '#f3c9c5', '#cdece5', '#f2dca4', '#dfe5fb'];
+const profileColors = {
+  'Alta expansão e alta densidade': '#94aee6',
+  'Alta expansão e baixa densidade': '#88c9df',
+  'Baixa expansão e alta densidade': '#b6d98b',
+  'Baixa expansão e baixa densidade': '#e8cf75'
+};
+const colorByIndex = rows => rows.map((d, i) => pastel[i % pastel.length]);
+const softColorByIndex = rows => rows.map((d, i) => pastelSoft[i % pastelSoft.length]);
+
+function renderCharts() {
+  const rows = data.records.filter(d => d.pop_estimada && d.densidade_pop_bairro);
+  const topGrowthRows = [...rows].sort((a, b) => b.crescimento_1977_2024_km2 - a.crescimento_1977_2024_km2).slice(0, 16).reverse();
+  const topDensityRows = [...rows].sort((a, b) => b.densidade_pop_bairro - a.densidade_pop_bairro).slice(0, 16).reverse();
+
+  Plotly.newPlot('popChart', [{
+    type: 'bar',
+    name: 'Crescimento urbano (km²)',
+    x: topGrowthRows.map(d => d.crescimento_1977_2024_km2),
+    y: topGrowthRows.map(d => d.bairro),
+    orientation: 'h',
+    marker: { color: colorByIndex(topGrowthRows) },
+    text: topGrowthRows.map(d => `${fmt.format(d.crescimento_1977_2024_km2)} km²`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '%{y}<br>Crescimento: %{x:.2f} km²<extra></extra>'
+  }, {
+    type: 'bar',
+    name: 'População estimada (mil hab.)',
+    x: topGrowthRows.map(d => d.pop_estimada / 1000),
+    y: topGrowthRows.map(d => d.bairro),
+    orientation: 'h',
+    marker: { color: softColorByIndex(topGrowthRows) },
+    text: topGrowthRows.map(d => `${fmt.format(d.pop_estimada / 1000)} mil`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '%{y}<br>População: %{x:.2f} mil hab.<extra></extra>'
+  }], baseLayout({
+    barmode: 'group',
+    margin: { l: 170, r: 120, t: 48, b: 92 },
+    xaxis: { title: 'Valor comparativo: km² e mil habitantes', gridcolor: cssVar('--grid') },
+    yaxis: { automargin: true },
+    legend: { orientation: 'h', y: 1.14 }
+  }), chartConfig('crescimento_urbano_populacao_bairros'));
+
+  Plotly.newPlot('densChart', [{
+    type: 'bar',
+    name: 'Densidade (mil hab/km²)',
+    x: topDensityRows.map(d => d.densidade_pop_bairro / 1000),
+    y: topDensityRows.map(d => d.bairro),
+    orientation: 'h',
+    marker: { color: colorByIndex(topDensityRows) },
+    text: topDensityRows.map(d => `${fmt.format(d.densidade_pop_bairro / 1000)} mil`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '%{y}<br>Densidade: %{x:.2f} mil hab/km²<extra></extra>'
+  }, {
+    type: 'bar',
+    name: 'Crescimento urbano (km²)',
+    x: topDensityRows.map(d => d.crescimento_1977_2024_km2),
+    y: topDensityRows.map(d => d.bairro),
+    orientation: 'h',
+    marker: { color: softColorByIndex(topDensityRows) },
+    text: topDensityRows.map(d => `${fmt.format(d.crescimento_1977_2024_km2)} km²`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '%{y}<br>Crescimento: %{x:.2f} km²<extra></extra>'
+  }], baseLayout({
+    barmode: 'group',
+    margin: { l: 170, r: 120, t: 48, b: 92 },
+    xaxis: { title: 'Valor comparativo: mil hab/km² e km²', gridcolor: cssVar('--grid') },
+    yaxis: { automargin: true },
+    legend: { orientation: 'h', y: 1.14 }
+  }), chartConfig('crescimento_urbano_densidade_bairros'));
+
+  const profiles = [...new Set(rows.map(d => d.perfil_socio_urbano))];
+  const profileRows = profiles.map(profile => {
+    const subset = rows.filter(d => d.perfil_socio_urbano === profile);
+    return {
+      profile,
+      count: subset.length,
+      growth: subset.reduce((sum, d) => sum + d.crescimento_1977_2024_km2, 0),
+      pop: subset.reduce((sum, d) => sum + d.pop_estimada, 0),
+      bairros: subset.sort((a, b) => b.crescimento_1977_2024_km2 - a.crescimento_1977_2024_km2).slice(0, 5).map(d => d.bairro).join(', ')
+    };
+  }).sort((a, b) => b.growth - a.growth);
+  Plotly.newPlot('quadChart', [{
+    type: 'bar',
+    name: 'Crescimento total (km²)',
+    x: profileRows.map(d => d.profile),
+    y: profileRows.map(d => d.growth),
+    marker: { color: profileRows.map(d => profileColors[d.profile] || '#75b7a8') },
+    text: profileRows.map(d => `${fmt.format(d.growth)} km²`),
+    textposition: 'outside',
+    cliponaxis: false,
+    customdata: profileRows.map(d => [d.count, d.pop, d.bairros]),
+    hovertemplate: '<b>%{x}</b><br>Crescimento: %{y:.2f} km²<br>Bairros: %{customdata[0]}<br>População: %{customdata[1]:,.0f}<br>Destaques: %{customdata[2]}<extra></extra>'
+  }, {
+    type: 'bar',
+    name: 'Número de bairros',
+    x: profileRows.map(d => d.profile),
+    y: profileRows.map(d => d.count),
+    yaxis: 'y2',
+    marker: { color: profileRows.map(d => profileColors[d.profile] || '#75b7a8'), opacity: .42 },
+    text: profileRows.map(d => `${d.count} bairros`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: '<b>%{x}</b><br>Bairros: %{y}<extra></extra>'
+  }], baseLayout({
+    barmode: 'group',
+    margin: { l: 76, r: 82, t: 48, b: 120 },
+    xaxis: { tickangle: -12, gridcolor: cssVar('--grid') },
+    yaxis: { title: 'Crescimento urbano total (km²)', gridcolor: cssVar('--grid') },
+    yaxis2: { title: 'Número de bairros', overlaying: 'y', side: 'right', rangemode: 'tozero' },
+    legend: { orientation: 'h', y: 1.14 }
+  }), chartConfig('perfis_socio_urbanos_bairros'));
+
+  const rankGroups = [
+    { name: 'Crescimento km²', rows: data.topGrowth, field: 'crescimento_1977_2024_km2', suffix: ' km²' },
+    { name: 'População', rows: data.topPop, field: 'pop_estimada', suffix: ' hab.' },
+    { name: 'Densidade', rows: data.topDensity, field: 'densidade_pop_bairro', suffix: ' hab/km²' },
+    { name: 'km² por mil hab.', rows: data.topPerCapita, field: 'crescimento_por_1000_hab_km2', suffix: '' }
+  ];
+  Plotly.newPlot('rankChart', rankGroups.map((group, idx) => ({
+    type: 'bar',
+    name: group.name,
+    x: group.rows.map(d => d[group.field]),
+    y: group.rows.map(d => d.bairro),
+    orientation: 'h',
+    marker: { color: group.rows.map((d, i) => pastel[(i + idx * 2) % pastel.length]) },
+    text: group.rows.map(d => `${fmt.format(d[group.field])}${group.suffix}`),
+    textposition: 'outside',
+    cliponaxis: false,
+    hovertemplate: `%{y}<br>${group.name}: %{x:.2f}<extra></extra>`,
+    visible: idx === 0 ? true : 'legendonly'
+  })), baseLayout({
+    barmode: 'group',
+    margin: { l: 170, r: 120, t: 48, b: 80 },
+    xaxis: { gridcolor: cssVar('--grid') },
+    yaxis: { automargin: true, autorange: 'reversed' },
+    legend: { orientation: 'h', y: 1.14 }
+  }), chartConfig('rankings_socio_urbanos_bairros'));
+}
+
+function renderTable() {
+  const rows = [...data.records].sort((a, b) => b.crescimento_1977_2024_km2 - a.crescimento_1977_2024_km2);
+  const head = ['Bairro', 'Região', 'Cresc. km²', '% urb. 2024', 'População', 'Densidade', 'Domicílios', 'Perfil'];
+  const profileClass = value => `profile-${String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+  const body = rows.map(d => `<tr>
+    <td>${d.bairro}</td>
+    <td>${d.regiao_adm}</td>
+    <td>${fmt.format(d.crescimento_1977_2024_km2)}</td>
+    <td>${fmt.format(d.pct_urb_2024)}%</td>
+    <td>${fmt.format(d.pop_estimada)}</td>
+    <td>${fmt.format(d.densidade_pop_bairro)}</td>
+    <td>${fmt.format(d.dom_estima || 0)}</td>
+    <td><span class="profile-badge ${profileClass(d.perfil_socio_urbano)}">${d.perfil_socio_urbano}</span></td>
+  </tr>`).join('');
+  document.getElementById('summaryTable').innerHTML = `<thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody>`;
+}
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  document.getElementById('theme-toggle').textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+  localStorage.setItem('urbanizacao-comparativo-theme-floripa', theme);
+  window.setTimeout(renderCharts, 40);
+}
+
+document.querySelectorAll('.tab-button').forEach(button => {
+  button.addEventListener('click', () => {
+    const target = button.dataset.tab;
+    document.querySelectorAll('.tab-button').forEach(item => {
+      const active = item === button;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === target);
+    });
+    window.setTimeout(() => ['popChart', 'densChart', 'quadChart', 'rankChart'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) Plotly.Plots.resize(el);
+    }), 80);
+  });
+});
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+renderTable();
+applyTheme(localStorage.getItem('urbanizacao-comparativo-theme-floripa') || 'light');
+</script>
+</body>
+</html>

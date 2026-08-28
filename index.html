@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Urbanizacao de Florianopolis</title>
+  <style>
+    :root {
+      --bg: #f6f2ec;
+      --panel: #ffffff;
+      --ink: #10231f;
+      --muted: #56665f;
+      --border: #d8cec2;
+      --shadow: rgba(72, 58, 44, .12);
+      --teal: #2f8077;
+      --teal-dark: #1f5f58;
+      --metric-a: linear-gradient(135deg, #d8f3ef 0%, #edf8f6 100%);
+      --metric-b: linear-gradient(135deg, #d9e9fb 0%, #f0f6ff 100%);
+      --metric-c: linear-gradient(135deg, #d7f0fa 0%, #eefaff 100%);
+      --metric-d: linear-gradient(135deg, #dff3e3 0%, #f2fbf4 100%);
+      --metric-e: linear-gradient(135deg, #e7def7 0%, #f8f3ff 100%);
+      --warm: rgba(242, 235, 140, .22);
+      --hero-glass: rgba(255,255,255,.68);
+      --section-bg: rgba(242, 235, 140, .22);
+    }
+
+    body[data-theme="dark"] {
+      --bg: #121817;
+      --panel: #1b2422;
+      --ink: #eef7f3;
+      --muted: #b6c6bf;
+      --border: #3d4d47;
+      --shadow: rgba(0, 0, 0, .34);
+      --teal: #84d8cc;
+      --teal-dark: #84d8cc;
+      --metric-a: linear-gradient(135deg, #1d3d3a 0%, #1b2c2a 100%);
+      --metric-b: linear-gradient(135deg, #20344d 0%, #1b2530 100%);
+      --metric-c: linear-gradient(135deg, #1c3b48 0%, #1a2a31 100%);
+      --metric-d: linear-gradient(135deg, #213c2a 0%, #1b2a20 100%);
+      --metric-e: linear-gradient(135deg, #302a49 0%, #252033 100%);
+      --warm: rgba(242, 235, 140, .12);
+      --hero-glass: rgba(27,36,34,.78);
+      --section-bg: rgba(242, 235, 140, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:
+        linear-gradient(180deg, rgba(246, 242, 236, .08), var(--bg) 72%),
+        url("webmap_manchas_urbanas_florianopolis.png") center top / 100% auto no-repeat,
+        var(--bg);
+      color: var(--ink);
+    }
+
+    body[data-theme="dark"] {
+      background:
+        linear-gradient(180deg, rgba(18, 24, 23, .36), var(--bg) 72%),
+        url("webmap_manchas_urbanas_florianopolis.png") center top / 100% auto no-repeat,
+        var(--bg);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(115deg, rgba(255,255,255,.14) 0 2px, transparent 2px 38px),
+        linear-gradient(180deg, rgba(246,242,236,.08), rgba(246,242,236,.92) 74%, var(--bg));
+      z-index: -1;
+    }
+
+    body[data-theme="dark"]::before {
+      background:
+        repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 38px),
+        linear-gradient(180deg, rgba(18,24,23,.1), rgba(18,24,23,.9) 74%, var(--bg));
+    }
+
+    main {
+      width: min(1220px, calc(100vw - 36px));
+      margin: 0 auto;
+      padding: 26px 0 36px;
+    }
+
+    .hero {
+      min-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(28px, 5vw, 58px) 0 26px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .badge,
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 999px;
+      background: var(--hero-glass);
+      color: var(--teal-dark);
+      font-size: 15px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .badge { margin-bottom: 18px; }
+
+    .theme-toggle {
+      cursor: pointer;
+      color: var(--ink);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: .98;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .lead {
+      max-width: 820px;
+      margin: 22px 0 0;
+      color: var(--ink);
+      font-size: clamp(20px, 2.3vw, 28px);
+      line-height: 1.35;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 8px 22px var(--shadow);
+    }
+
+    .button.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #ffffff;
+    }
+
+    body[data-theme="dark"] .button.primary {
+      color: #10231f;
+    }
+
+    .hero-note {
+      max-width: 760px;
+      margin-top: 28px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 8px;
+      background: var(--hero-glass);
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+      backdrop-filter: blur(8px);
+    }
+
+    section {
+      margin-top: 22px;
+      padding: 28px;
+      border: 1px solid rgba(166, 153, 73, .16);
+      border-radius: 12px;
+      background: var(--section-bg);
+      box-shadow: 0 10px 28px var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-lead {
+      max-width: 900px;
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.48;
+    }
+
+    .product-grid,
+    .info-grid,
+    .steps,
+    .locations-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .info-grid { grid-template-columns: repeat(5, 1fr); }
+    .steps { grid-template-columns: repeat(3, 1fr); }
+    .locations-grid { grid-template-columns: repeat(4, 1fr); }
+
+    .card,
+    .stat,
+    .location-card {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 22px var(--shadow);
+    }
+
+    .card { min-height: 210px; }
+    .stat { min-height: 132px; }
+    .location-card { min-height: 88px; }
+
+    .card:nth-child(5n+1),
+    .stat:nth-child(5n+1),
+    .location-card:nth-child(5n+1) { background: var(--metric-a); }
+    .card:nth-child(5n+2),
+    .stat:nth-child(5n+2),
+    .location-card:nth-child(5n+2) { background: var(--metric-b); }
+    .card:nth-child(5n+3),
+    .stat:nth-child(5n+3),
+    .location-card:nth-child(5n+3) { background: var(--metric-c); }
+    .card:nth-child(5n+4),
+    .stat:nth-child(5n+4),
+    .location-card:nth-child(5n+4) { background: var(--metric-d); }
+    .card:nth-child(5n+5),
+    .stat:nth-child(5n+5),
+    .location-card:nth-child(5n+5) { background: var(--metric-e); }
+
+    .card h3,
+    .location-card strong {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.16;
+    }
+
+    .location-card strong {
+      display: block;
+      font-size: 19px;
+    }
+
+    .card p,
+    .card li,
+    .location-card span {
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.46;
+    }
+
+    .card p { margin: 0 0 16px; }
+    .card p:last-child { margin-bottom: 0; }
+    .card ul { margin: 0 0 18px; padding-left: 20px; }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .footer {
+      margin: 22px 0 0;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      box-shadow: 0 10px 28px var(--shadow);
+    }
+
+    .footer p { margin: 0 0 10px; }
+    .footer p:last-child { margin-bottom: 0; }
+    .footer strong { color: var(--ink); }
+    .footer a { color: var(--teal-dark); font-weight: 700; }
+
+    @media (max-width: 900px) {
+      body { background-size: auto 62vh; }
+      main { width: min(100% - 28px, 1220px); padding-top: 14px; }
+      .hero { min-height: 70vh; }
+      .hero-top { display: block; }
+      .theme-toggle { margin-top: 18px; }
+      .product-grid,
+      .info-grid,
+      .steps,
+      .locations-grid { grid-template-columns: 1fr; }
+      section { padding: 22px; }
+      .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="badge">UFSC | Urbanizacao de Florianopolis</div>
+          <h1>Expansao Urbana de Florianopolis</h1>
+          <p class="lead">Produto interativo para consulta, apresentacao e documentacao da evolucao da mancha urbana entre 1977, 2002/2003 e 2024.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="dashboard/dashboard_urbanizacao_webmap.html">Abrir dashboard completo</a>
+            <a class="button" href="dashboard/dashboard_comparativo_socio_urbano.html">Abrir comparativo</a>
+            <a class="button" href="dashboard/webmap_manchas_urbanas.html">Abrir webmap</a>
+          </div>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button">Modo escuro</button>
+      </div>
+      <p class="hero-note">O material organiza camadas vetoriais do Geoportal de Florianopolis, calcula areas urbanizadas, crescimento por bairro, crescimento por regiao administrativa e taxas medias por periodo.</p>
+    </header>
+
+    <section>
+      <h2>Três produtos para usos diferentes</h2>
+      <p class="section-lead">A pagina reune o painel analitico principal, um dashboard socio-urbano e um webmap independente. Assim, a historia da expansao urbana fica separada da comparacao estatistica com populacao, densidade e domicilios.</p>
+      <div class="product-grid">
+        <article class="card">
+          <h3>Dashboard completo</h3>
+          <p>Reune introducao, metodologia, webmap, evolucao da area urbanizada, bairros com maior crescimento, regioes administrativas, taxas medias e percentual urbanizado.</p>
+          <ul>
+            <li>Indicado para apresentacao e analise guiada.</li>
+            <li>Possui graficos interativos em Plotly.</li>
+            <li>Permite baixar figuras em PNG.</li>
+          </ul>
+          <a class="button primary" href="dashboard/dashboard_urbanizacao_webmap.html">Entrar no dashboard</a>
+        </article>
+        <article class="card">
+          <h3>Webmap</h3>
+          <p>Mostra o crescimento por bairro em uma pagina separada, com camadas historicas opcionais, modo escuro, escala, rosa dos ventos e base satelite.</p>
+          <ul>
+            <li>Indicado para consulta espacial rapida.</li>
+            <li>Foca na distribuicao territorial do crescimento urbano.</li>
+            <li>Possui limite de zoom e extensao da area de estudo.</li>
+          </ul>
+          <a class="button" href="dashboard/webmap_manchas_urbanas.html">Abrir webmap</a>
+        </article>
+        <article class="card">
+          <h3>Comparativo socio-urbano</h3>
+          <p>Cruza crescimento urbano por bairro com populacao estimada, densidade populacional, domicilios e perfis socio-urbanos.</p>
+          <ul>
+            <li>Indicado para analise estatistica exploratoria.</li>
+            <li>Inclui barras comparativas, perfis socio-urbanos e rankings.</li>
+            <li>Ajuda a diferenciar expansao territorial e adensamento.</li>
+          </ul>
+          <a class="button" href="dashboard/dashboard_comparativo_socio_urbano.html">Abrir comparativo</a>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Base de dados</h2>
+      <p class="section-lead">As camadas foram processadas em sistema metrico para permitir comparacao direta de areas em km2 e leitura por bairro e regiao administrativa.</p>
+      <div class="info-grid">
+        <div class="stat"><span>Area urbanizada 1977</span><strong>49,42 km2</strong></div>
+        <div class="stat"><span>Area urbanizada 2002/2003</span><strong>83,8 km2</strong></div>
+        <div class="stat"><span>Area urbanizada 2024</span><strong>116,29 km2</strong></div>
+        <div class="stat"><span>Crescimento total</span><strong>+66,86 km2</strong></div>
+        <div class="stat"><span>Media anual</span><strong>+1,42 km2/ano</strong></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Recortes analisados</h2>
+      <p class="section-lead">O produto combina recortes temporais e territoriais para transformar as manchas urbanas em indicadores comparaveis.</p>
+      <div class="locations-grid">
+        <div class="location-card"><strong>1977</strong><span>Mancha urbana historica inicial.</span></div>
+        <div class="location-card"><strong>2002/2003</strong><span>Mancha urbana intermediaria do Geoportal.</span></div>
+        <div class="location-card"><strong>2024</strong><span>Apenas feicoes classificadas como Urbanizado.</span></div>
+        <div class="location-card"><strong>Bairros</strong><span>Intersecao entre limites de bairros e manchas urbanas.</span></div>
+        <div class="location-card"><strong>Regioes administrativas</strong><span>Agregacao territorial dos bairros.</span></div>
+        <div class="location-card"><strong>Taxas medias</strong><span>Crescimento anual linear e taxa composta.</span></div>
+        <div class="location-card"><strong>Percentual urbanizado</strong><span>Area urbanizada em relacao a area total da unidade.</span></div>
+        <div class="location-card"><strong>Webmap</strong><span>Camadas interativas com base OSM e Google Satelite.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Como o produto foi organizado</h2>
+      <div class="steps">
+        <article class="card">
+          <h3>1. Coleta</h3>
+          <p>Foram reunidas camadas vetoriais do Geoportal de Florianopolis: mancha urbana de 1977, mancha urbana de 2002/2003, areas urbanizadas de 2024 e limites de bairros.</p>
+        </article>
+        <article class="card">
+          <h3>2. Tratamento</h3>
+          <p>As geometrias foram validadas, dissolvidas por ano e cruzadas com os limites territoriais. Para 2024, foi usado somente o atributo tipo = Urbanizado.</p>
+        </article>
+        <article class="card">
+          <h3>3. Visualizacao</h3>
+          <p>Os resultados foram transformados em CSVs, arquivo GeoJSON para webmap, graficos Plotly, dashboard completo, dashboard socio-urbano, mapa independente e README metodologico.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Leitura dos resultados</h2>
+      <p class="section-lead">O painel prioriza interpretacao exploratoria da expansao urbana. Valores em km2 indicam crescimento absoluto; valores em percentual indicam quanto da unidade territorial ja estava ocupada pela mancha urbana.</p>
+      <div class="product-grid">
+        <article class="card">
+          <h3>Para analise temporal</h3>
+          <p>Use a evolucao da area urbanizada e a taxa media por periodo para observar a intensidade do crescimento entre os recortes historicos.</p>
+        </article>
+        <article class="card">
+          <h3>Para comparacao espacial</h3>
+          <p>Use o webmap, o ranking de bairros, a agregacao por regiao administrativa e o comparativo socio-urbano para identificar os setores com maior crescimento e maior adensamento.</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Autoria:</strong> Caetano Ronan - UFSC.</p>
+      <p><strong>Produto:</strong> painel interativo e webmap para analise da urbanizacao de Florianopolis entre 1977, 2002/2003 e 2024.</p>
+      <p><strong>Dados e ferramentas:</strong> Geoportal de Florianopolis; camadas `mancha_urb1977`, `mancha_urb2002.zip`, `areas_urbanizadas_2024` e `gvw_bairros`; Python, GeoPandas, Shapely, Pandas, Leaflet, Plotly, html2canvas, OpenStreetMap e Google Satelite.</p>
+      <p><strong>Processamento:</strong> SIRGAS 2000 / UTM zona 22S, EPSG:31982; validacao geometrica, dissolucao das manchas urbanas, intersecao com bairros, agregacao por regiao administrativa e conversao de m2 para km2.</p>
+      <p><strong>Arquivos principais:</strong> <a href="dashboard/dashboard_urbanizacao_webmap.html">dashboard completo</a>; <a href="dashboard/dashboard_comparativo_socio_urbano.html">comparativo socio-urbano</a>; <a href="dashboard/webmap_manchas_urbanas.html">webmap independente</a>; <a href="README.md">README metodologico</a>.</p>
+    </footer>
+  </main>
+  <script>
+    const themeButton = document.getElementById('theme-toggle');
+    const storageKey = 'urbanizacao-index-theme';
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme;
+      themeButton.textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+      localStorage.setItem(storageKey, theme);
+    }
+
+    themeButton.addEventListener('click', () => {
+      applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+
+    applyTheme(localStorage.getItem(storageKey) || 'light');
+  </script>
+</body>
+</html>
