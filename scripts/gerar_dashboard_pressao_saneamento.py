@@ -899,7 +899,7 @@ function renderCharts() {{
     type: 'bar',
     x: scopeYears.map(d => d.ano),
     y: scopeYears.map(d => d.registros),
-    marker: {{ color: '#c7b7e8', line: barLine }},
+    marker: {{ color: scopeYears.map((_, i) => colors[i % colors.length]), line: barLine }},
     opacity: .94,
     text: scopeYears.map(d => fmt.format(d.registros)),
     textposition: 'outside',
