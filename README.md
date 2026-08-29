@@ -160,6 +160,70 @@ Tratamento local/fossa = registros com menção a fossa, sistema local ou tratam
 
 Esse índice não substitui cadastro operacional de rede, ligações ou capacidade do sistema. Ele serve como leitura exploratória para indicar onde a pressão urbana e os registros sanitários se sobrepõem.
 
+## Dashboard De Inspeções Sanitárias
+
+O arquivo `dashboard/dashboard_inspecoes_saneamento.html` foi separado do painel de pressão urbana para evitar excesso de informação em uma única tela. Ele funciona como painel técnico complementar: enquanto o dashboard de pressão mostra a relação entre urbanização e distritos de saneamento, este painel detalha os registros de inspeção sanitária/ambiental.
+
+### Escopo Da Base
+
+Foram considerados apenas registros de inspeção localizados dentro dos distritos de saneamento. A base final possui:
+
+| Indicador | Valor |
+|---|---:|
+| Registros de inspeção válidos | 65.024 |
+| Data inicial | 21/03/2011 |
+| Data final | 25/01/2025 |
+| Distritos avaliados | 5 |
+
+A aba `Escopo da base` mostra três leituras de contexto:
+
+- distribuição temporal das inspeções por ano;
+- perfil dos imóveis inspecionados;
+- principais programas ou campanhas identificados.
+
+### Perfil Dos Imóveis Inspecionados
+
+Principais categorias registradas:
+
+| Categoria | Registros |
+|---|---:|
+| Unifamiliar | 24.832 |
+| Sem classificação | 20.449 |
+| Multifamiliar | 12.405 |
+| Comercial | 4.068 |
+
+Essa leitura ajuda a entender a composição da base antes de interpretar os indicadores sanitários. Por exemplo, uma concentração maior de imóveis unifamiliares pode indicar uma lógica diferente de atendimento, fiscalização e ligação predial em relação a áreas multifamiliares ou comerciais.
+
+### Programas E Campanhas Identificados
+
+Principais programas/campanhas com nome informado:
+
+| Programa/Campanha | Registros |
+|---|---:|
+| FSLNR | 16.018 |
+| Trato pela Lagoa | 4.283 |
+| SANEAR | 3.752 |
+| TPC | 1.684 |
+| Trato pela Costa Norte | 189 |
+
+Esses campos ajudam a interpretar a origem institucional de parte dos registros. A análise considera os programas como contexto da inspeção, não como medida direta de cobertura de rede.
+
+### Indicadores Do Painel De Inspeções
+
+O painel calcula, por distrito de saneamento:
+
+- total de inspeções;
+- registros classificados como adequados;
+- registros com indícios de inadequação;
+- registros com menção a não conexão à rede;
+- registros com menção a conexão parcial;
+- registros com menção a tratamento local ou fossa;
+- registros com menção a ligação pluvial irregular;
+- registros com menção a problema de caixa de gordura;
+- índice integrado de prioridade para investimento.
+
+As classificações são obtidas por busca textual nos campos descritivos das inspeções. Por isso, o resultado deve ser lido como indício técnico exploratório, não como cadastro oficial de ligações, rede instalada ou capacidade operacional do sistema.
+
 ## Observação Sobre 2002/2003
 
 O arquivo baixado se chama `mancha_urb2002.zip`, mas sua tabela interna possui o campo `refname` com valor `2003`. Por isso, o dashboard identifica essa camada como `2002/2003` até confirmação da fonte original.
